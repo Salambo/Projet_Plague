@@ -5,7 +5,9 @@
 struct Building{
 
     int type;
-    int capacity;
-    int contamination_level;
+    int people_number;
+    int dead_body_number;
+    int capacity_max; /*utile?*/
+    double contamination_level;
 
 }

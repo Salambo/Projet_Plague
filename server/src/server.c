@@ -2,25 +2,32 @@
 
 Building ** MemoryAllocationCity(){
 
-  int i;
+    int i;
 
-  Building ** city= (int **)malloc(sizeof(int *)*7);
+    Building ** city= (Building **)malloc(sizeof(Building *)*7);
 
-  if(city==NULL){
-    printf("Erreur d'allocation de mémoire \n");
+    if(city==NULL){
+        printf("Erreur d'allocation de mémoire \n");
 
-  }
-  else{
-    for(i=0; i<7; i++){
-      city[i]= (int *)malloc(sizeof(int)*hauteur);
     }
-  }
+    else{
+        for(i=0; i<7; i++){
+            city[i]= (Building *)malloc(sizeof(Building)*7);
+        }
+    }
 
-  return city; 
+    return city; 
 }
 
-Building ** CityInitialization(){
+Building ** CityInitialization(Building ** city){
 
+    /*
+    Type: 0 = terrain vague capacité: 16
+            1 = maison 6
+            2 = caserne 8
+            3 = Hopital 12
+    */
     
+    return city;
 
 }
