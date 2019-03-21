@@ -1,6 +1,6 @@
 #include "server.h"
 
-Building ** MemoryAllocationCity(){
+Building** MemoryAllocationCity(){
 
     int i;
 
