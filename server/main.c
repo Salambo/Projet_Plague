@@ -48,7 +48,7 @@ int main(){
         manage_parent(anonymous_pipe);   
     }
 
-    /*création du fils */
+    /*création du fils 2/processus 3*/
 
 
 
