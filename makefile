@@ -1,11 +1,15 @@
 CC=gcc
 CPPFLAGS=-Wall -Wextra
 
-main: matrix.o
+server: matrix.o
 	$(CC) -o programme matrix.o main.c
 	make clean
 
-matrix.o: matrix.c matrix.h
+journalist: 
+
+server.o:
+
+journalist.o: matrix.c matrix.h
 	$(CC) $(CPPFLAGS) $*.c -c
 
 clean:
