@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <sys/wait.h>
-#include<stdlib.h>
+#include "src/server.h"
 
 void manage_parent(int pipe[]){
     
@@ -50,7 +48,7 @@ int main(){
         manage_parent(anonymous_pipe);   
     }
 
-    /*création du fils 2/
+    /*création du fils */
 
 
 
