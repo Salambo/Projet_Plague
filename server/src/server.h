@@ -2,7 +2,9 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 
-struct Building{
+
+
+typedef struct Building{
 
     int type;
     int people_number;
@@ -10,4 +12,4 @@ struct Building{
     int capacity_max; /*utile?*/
     double contamination_level;
 
-}
+}Building;

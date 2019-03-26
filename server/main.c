@@ -8,8 +8,10 @@ void manage_parent(int pipe[]){
     /*Création de la mémoire partagée*/ 
 
     /*Initialisation ville*/
-    Building ** city = MemoryAllocationCity(city); /*création du tableau city[7][7]*/
+    Building ** city = MemoryAllocationCity(); /*création du tableau city[7][7]*/
+    city = CityInitialization(city);
 
+    building_type_display(city);
 
     
 
@@ -26,7 +28,7 @@ void manage_parent(int pipe[]){
 
     /*sortie de la fonction*/
 }
-/*envoyer un morceau par un morceau du tableau*/
+
 void manage_child(int pipe[]){
     
     /*Initialisation threads - citoyen */
