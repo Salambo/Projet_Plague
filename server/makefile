@@ -5,6 +5,9 @@ SRCPATH=src/
 .PHONY: all clean
 all: main
 
+test: server.o
+	$(CC) -o plague-server-test.x $< test.c
+
 main: server.o
 	$(CC) -o plague-server.x $< main.c
 

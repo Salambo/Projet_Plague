@@ -1,7 +1,7 @@
 #include "src/server.h"
 #include <stdio.h>
 #include <sys/wait.h>
-#include<stdlib.h>
+#include <stdlib.h>
 
 void manage_parent(int pipe[]){
     
