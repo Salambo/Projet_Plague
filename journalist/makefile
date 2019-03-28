@@ -14,5 +14,5 @@ server.o: $(SRCPATH)*.c $(SRCPATH)*.h
 clean:
 	rm -f *.o
 
-reset:
+reset: clean
 	rm -f *.x

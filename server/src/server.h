@@ -2,6 +2,7 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 
+typedef struct Building{
 
 
 typedef struct Building{
@@ -12,4 +13,4 @@ typedef struct Building{
     int capacity_max; /*utile?*/
     double contamination_level;
 
-}Building;
+} Building;
