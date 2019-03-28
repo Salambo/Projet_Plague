@@ -2,13 +2,15 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 typedef struct Citizen {
     int type;
     double contamination_level;
     int position_x;
     int position_y;
-    pthread_t *thread_id;
+    pthread_t thread_id;
 } Citizen;
 
 typedef struct Building{
@@ -39,4 +41,8 @@ typedef struct thread_plug {
  */
 int generate_citizens(City* city, int nb_citizens);
 
-int *live_citizen(Citizen* citizen);
+//int *live_citizen(Citizen* citizen);
+void *live_citizen(void* citizen);
+
+Building** MemoryAllocationCity(void);
+Building** CityInitialization(Building ** city);

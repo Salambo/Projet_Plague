@@ -1,14 +1,11 @@
 #include "src/server.h"
-#include <stdio.h>
-#include <sys/wait.h>
-#include <stdlib.h>
 
 void manage_parent(int pipe[]){
     
     /*Création de la mémoire partagée*/ 
 
     /*Initialisation ville*/
-    Building ** city = MemoryAllocationCity(city); /*création du tableau city[7][7]*/
+    Building ** city = MemoryAllocationCity(); /*création du tableau city[7][7]*/
 
 
     
