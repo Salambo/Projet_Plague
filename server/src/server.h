@@ -35,6 +35,6 @@ typedef struct thread_plug {
 } thread_plug;
 
 
-Building** CityInitialization();
-void building_type_display(Building** city);
+int CityInitialization(Building[7][7]);
+void building_type_display(Building[7][7]);
 

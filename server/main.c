@@ -3,8 +3,8 @@
 struct City *server;
 
 
-void manage_parent(int pipe[]){
-    
+int manage_parent(int pipe[]){
+
     /*Création de la mémoire partagée*/ 
     int shmd = shm_open("/city", O_CREAT|O_RDWR, S_IRUSR|S_IWUSR);
     if(shmd == -1){
@@ -17,13 +17,16 @@ void manage_parent(int pipe[]){
 
     /*Initialisation ville*/
     /*= MemoryAllocationCity(); /*création du tableau city[7][7]*/
-    printf("ça marche!");
-    Building** city=CityInitialization();
-    printf("ça marche!");
+
+    Building city[7][7];
+    if(CityInitialization(city) == EXIT_FAILURE) {
+        printf("Erreur lors de l'initialisation de la ville");
+        return EXIT_FAILURE;
+    }
+
 
     /*test*/
     building_type_display(city);
-    printf("ça marche!");
 
     /*Initialisation des niveaux de contamination des terrains*/
     
@@ -70,9 +73,8 @@ int main(){
    
     } else if(pid == 0){ /*fils*/
         manage_child(anonymous_pipe);
-         
     } else {
-        manage_parent(anonymous_pipe);   
+        manage_parent(anonymous_pipe);
     }
 
     /*création du fils 2/processus 3 ?*/

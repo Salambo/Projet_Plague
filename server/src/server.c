@@ -19,11 +19,7 @@
 
     return city; 
 }*/
-
-Building** CityInitialization(){
-
-    Building city[7][7];
-
+int CityInitialization(Building city[7][7]){
     int length;
     int width;
     int var;
@@ -53,11 +49,12 @@ Building** CityInitialization(){
         }while(city[i][j].type!=0);
         city[i][j].type= 1;
     }
-    printf("ça marche!");
-    return city;
+
+    return EXIT_SUCCESS;
 }
 
-void building_type_display(Building** city){
+void building_type_display(Building city[7][7]){
+    printf("ça marche\n");
     int length;
     int width;
     
