@@ -36,7 +36,6 @@ int generate_citizens(City* city) {
         plug.city = city;*/
 
         pthread_create(&citizens[i].thread_id, &attr, citizen, (void*)thread_id_citizen[i]);
-        printf("increment %d\n", i);
     }
 
     pthread_join(thread_server, NULL);
@@ -58,16 +57,14 @@ void *citizen(void *plug)
 	while(day < NUM_DAYS) {
 		pthread_mutex_lock(&thread_mutex);
 		current_citizen_index++;
-        printf("current_citizen_index : %d\n", current_citizen_index);
 
 		if (current_citizen_index == nb_citizens_left) {
 			pthread_cond_signal(&thread_signal);
-			printf("Just sent signal.\n");
 		}
 		
         printf("vivant : %ld\n", id);
         printf("jour : %d\n", day);
-        printf("citoyens : %d\n", current_citizen_index);
+        printf("citoyen : %d\n", current_citizen_index);
 		pthread_mutex_unlock(&thread_mutex);
         sleep(1);
 	}
