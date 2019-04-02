@@ -6,10 +6,10 @@ SRCPATH=src/
 all: main
 
 main: server.o
-	$(CC) -o plague-server.x $< main.c
+	$(CC) -o plague-server.x $< main.c -lrt -g
 
 server.o: $(SRCPATH)*.c $(SRCPATH)*.h
-	$(CC) $(CPPFLAGS) $(SRCPATH)$*.c -c
+	$(CC) $(CPPFLAGS) $(SRCPATH)$*.c -c 
 
 clean:
 	rm -f *.o

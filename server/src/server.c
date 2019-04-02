@@ -1,7 +1,7 @@
 #include "server.h"
 #include <time.h>
 
-Building** MemoryAllocationCity(){
+/*Building** MemoryAllocationCity(){
 
     int i;
 
@@ -18,9 +18,11 @@ Building** MemoryAllocationCity(){
     }
 
     return city; 
-}
+}*/
 
-Building** CityInitialization(Building ** city){
+Building** CityInitialization(){
+
+    Building city[7][7];
 
     int length;
     int width;
@@ -44,19 +46,18 @@ Building** CityInitialization(Building ** city){
     city[0][6].type= 2; /*Création des casernes*/
     city[6][0].type= 2;
 
-    for(var=0; var<7; var++){
+    for(var=0; var<12; var++){ /*Créations des maisons*/
         do{
-            i=rand_b(length-1);
-            j=rand_b(width-1);
+            i=rand()%(6);
+            j=rand()%(6);
         }while(city[i][j].type!=0);
         city[i][j].type= 1;
     }
-
+    printf("ça marche!");
     return city;
-
 }
 
-void building_type_display(Building ** city){
+void building_type_display(Building** city){
     int length;
     int width;
     
