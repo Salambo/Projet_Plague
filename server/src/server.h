@@ -39,10 +39,13 @@ typedef struct thread_plug {
  * @param City* city
  * @param int nb_citizens
  */
-int generate_citizens(City* city, int nb_citizens);
+int generate_citizens(City* city);
 
 //int *live_citizen(Citizen* citizen);
 void *live_citizen(void* citizen);
 
 Building** MemoryAllocationCity(void);
 Building** CityInitialization(Building ** city);
+
+void *citizen(void *plug);
+void *server(void *plug);

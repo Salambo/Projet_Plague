@@ -1,40 +1,94 @@
 #include "server.h"
 
-int generate_citizens(City* city, int nb_citizens) {
-    Citizen* citizens;
+#define NUM_CITIZENS	25
+#define NUM_DAYS		3
 
-    citizens = (Citizen*)malloc(sizeof(Citizen) * nb_citizens);
+int day = 0;
+int nb_citizens_left = NUM_CITIZENS;
+int current_citizen_index = 0;
+pthread_mutex_t thread_mutex;
+pthread_cond_t thread_signal;
 
-    for(int i = 0; i < nb_citizens; i++) {
+int generate_citizens(City* city) {
+    Citizen citizens[NUM_CITIZENS];
+    pthread_t thread_server;
+    long thread_id_server;
+    long thread_id_citizen[NUM_CITIZENS];
+    pthread_attr_t attr;
+
+    /* Initialize mutex and condition variable objects */
+	pthread_mutex_init(&thread_mutex, NULL);
+	pthread_cond_init(&thread_signal, NULL);
+
+    /* For portability, explicitly create threads in a joinable state */
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+    pthread_create(&thread_server, &attr, server, (void*)thread_id_server);
+    for(int i = 0; i < NUM_CITIZENS; i++) {
         citizens[i].type = i;
         citizens[i].contamination_level = 0;
         citizens[i].position_x = 0;
         citizens[i].position_y = 0;
 
-        thread_plug plug;
+        /*thread_plug plug;
         plug.citizen = &citizens[i];
-        plug.city = city;
+        plug.city = city;*/
 
-        pthread_create(&citizens[i].thread_id, NULL, &live_citizen, (void*)&plug);
+        pthread_create(&citizens[i].thread_id, &attr, citizen, (void*)thread_id_citizen[i]);
         printf("increment %d\n", i);
     }
 
-    for(int i = 0; i < nb_citizens; i++) {
+    pthread_join(thread_server, NULL);
+    for(int i = 0; i < NUM_CITIZENS; i++) {
         pthread_join(citizens[i].thread_id, NULL);
     }
 
-    exit(EXIT_SUCCESS);
+    pthread_attr_destroy(&attr);
+	pthread_mutex_destroy(&thread_mutex);
+	pthread_cond_destroy(&thread_signal);
+	pthread_exit(NULL);
 }
 
-void *live_citizen(void *citizen) {
-    for(int i = 0; i < 1; i++) {
-        printf("thread executé %ld\n", (long)pthread_self());
-        thread_plug *plug = citizen;
+void *citizen(void *plug)
+{
+	//int i;
+	long id = (long)plug;
 
-        printf("variable dans thread : %d\n", plug->citizen->type);
+	while(day < NUM_DAYS) {
+		pthread_mutex_lock(&thread_mutex);
+		current_citizen_index++;
+        printf("current_citizen_index : %d\n", current_citizen_index);
 
-        sleep(0.1);
+		if (current_citizen_index == nb_citizens_left) {
+			pthread_cond_signal(&thread_signal);
+			printf("Just sent signal.\n");
+		}
+		
+        printf("vivant : %ld\n", id);
+        printf("jour : %d\n", day);
+        printf("citoyens : %d\n", current_citizen_index);
+		pthread_mutex_unlock(&thread_mutex);
+        sleep(1);
+	}
+	pthread_exit(NULL);
+}
+
+void *server(void *plug)
+{
+	long id = (long)plug;
+
+    pthread_mutex_lock(&thread_mutex);
+    while(day < NUM_DAYS) {
+        day++;
+        while (current_citizen_index < nb_citizens_left) {
+            pthread_cond_wait(&thread_signal, &thread_mutex);
+        }
+        current_citizen_index = 0;
+        printf("Appuyez sur une touche pour passer au jour suivant");
+        getchar();
+
+        pthread_mutex_unlock(&thread_mutex);
     }
-
-    //pthread_exit(EXIT_SUCCESS);
+	pthread_exit(NULL);
 }
