@@ -7,6 +7,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
 
 typedef struct Citizen {
     int type;
@@ -47,6 +48,8 @@ int generate_citizens(City* city);
 void *citizen(void *plug);
 void *server(void *plug);
 
+int manage_parent(int pipe[], City *shared_memory);
+void manage_child(int pipe[], City *shared_memory);
 
 int CityInitialization(Building[7][7]);
 void building_type_display(Building[7][7]);

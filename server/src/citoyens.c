@@ -51,7 +51,6 @@ int generate_citizens(City* city) {
 
 void *citizen(void *plug)
 {
-	//int i;
 	long id = (long)plug;
 
 	while(day < NUM_DAYS) {
@@ -66,7 +65,7 @@ void *citizen(void *plug)
         printf("jour : %d\n", day);
         printf("citoyen : %d\n", current_citizen_index);
 		pthread_mutex_unlock(&thread_mutex);
-        sleep(1);
+        usleep(500);
 	}
 	pthread_exit(NULL);
 }

@@ -2,8 +2,8 @@ CC=gcc
 CPPFLAGS=-Wall -Wextra
 SRCPATH=src/
 
-.PHONY: all clean
-all: main
+.PHONY: all
+all: main clean
 
 test: citoyens.o server.o test.o
 	$(CC) -o $@ $^ -lpthread -lrt
