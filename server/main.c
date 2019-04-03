@@ -1,13 +1,34 @@
 #include "src/server.h"
 
-void manage_parent(int pipe[]){
-    
+struct City *shared_memory;
+
+
+int manage_parent(int pipe[]){
+
     /*Création de la mémoire partagée*/ 
+    int shmd = shm_open("/city", O_CREAT|O_RDWR, S_IRUSR|S_IWUSR);
+    if(shmd == -1){
+        printf("ça marche pas!");
+    }
+    if(ftruncate(shmd, sizeof(struct City))== -1){
+        printf("ça marche pas bis");
+    }
+    shared_memory = mmap(NULL, sizeof(struct City), PROT_READ|PROT_WRITE, MAP_SHARED, shmd, 0);
 
     /*Initialisation ville*/
-    Building ** city = MemoryAllocationCity(); /*création du tableau city[7][7]*/
+    /*= MemoryAllocationCity(); /*création du tableau city[7][7]*/
+
+    Building city[7][7];
+    if(CityInitialization(city) == EXIT_FAILURE) {
+        printf("Erreur lors de l'initialisation de la ville");
+        return EXIT_FAILURE;
+    }
 
 
+    /*test*/
+    building_type_display(city);
+
+    /*Initialisation des niveaux de contamination des terrains*/
     
 
     /*Création des tubes nommés/files de messages pour les clients/autres programmes*/
@@ -22,8 +43,11 @@ void manage_parent(int pipe[]){
     /*Simulation : 100 tours*/
 
     /*sortie de la fonction*/
+    munmap(server, sizeof(City));
+    close(shmd);
+    shm_unlink("/city");
 }
-/*envoyer un morceau par un morceau du tableau*/
+
 void manage_child(int pipe[]){
     
     /*Initialisation threads - citoyen */
@@ -49,9 +73,8 @@ int main(){
    
     } else if(pid == 0){ /*fils*/
         manage_child(anonymous_pipe);
-         
     } else {
-        manage_parent(anonymous_pipe);   
+        manage_parent(anonymous_pipe);
     }
 
     /*création du fils 2/processus 3 ?*/

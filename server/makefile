@@ -16,7 +16,7 @@ test.o: test.c $(SRCPATH)server.h
 main: citoyens.o server.o main.o
 	$(CC) -o $@ $^ -lpthread -lrt
 
-main.o: $(SRCPATH)server.h main.c
+main.o: main.c $(SRCPATH)server.h
 	@$(CC) -o $@ $< -c
 
 citoyens.o: $(SRCPATH)citoyens.c $(SRCPATH)server.h

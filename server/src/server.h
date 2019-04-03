@@ -4,6 +4,9 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 typedef struct Citizen {
     int type;
@@ -41,11 +44,10 @@ typedef struct thread_plug {
  */
 int generate_citizens(City* city);
 
-//int *live_citizen(Citizen* citizen);
-void *live_citizen(void* citizen);
-
-Building** MemoryAllocationCity(void);
-Building** CityInitialization(Building ** city);
-
 void *citizen(void *plug);
 void *server(void *plug);
+
+
+int CityInitialization(Building[7][7]);
+void building_type_display(Building[7][7]);
+
