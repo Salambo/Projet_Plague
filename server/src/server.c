@@ -4,7 +4,7 @@ int manage_parent(int pipe[], City *shared_memory){
     /*Initialisation ville*/
     /*= MemoryAllocationCity(); /*création du tableau city[7][7]*/
 
-    Building city[7][7];
+    Building city[CITY_SIZE][CITY_SIZE];
     if(CityInitialization(city) == EXIT_FAILURE) {
         printf("Erreur lors de l'initialisation de la ville");
         return EXIT_FAILURE;
@@ -49,7 +49,7 @@ void manage_child(int pipe[], City *shared_memory){
     generate_citizens(shared_memory);
 }
 
-int CityInitialization(Building city[7][7]){
+int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
     int length;
     int width;
     int var;
@@ -62,23 +62,23 @@ int CityInitialization(Building city[7][7]){
             3 = Hopital 12
     */
 
-    for(length=0; length<7; length++){
-        for(width=0; width<7; width++){
-            city[length][width].type= 0;
-            city[length][width].contamination_level= 0;
+    for(length=0; length<CITY_SIZE; length++){
+        for(width=0; width<CITY_SIZE; width++){
+            city[length][width].type = WASTELAND;
+            city[length][width].contamination_level = 0;
         }
     }
 
-    city[3][3].type= 3; /*Création de l'hopital*/
-    city[0][6].type= 2; /*Création des casernes*/
-    city[6][0].type= 2;
+    city[3][3].type = HOSPITAL;
+    city[0][6].type = FIRESTATION;
+    city[6][0].type = FIRESTATION;
 
     for(var=0; var<12; var++){ /*Créations des maisons*/
         do{
             i=rand()%(6);
             j=rand()%(6);
         }while(city[i][j].type!=0);
-        city[i][j].type= 1;
+        city[i][j].type = HOUSE;
     }
     
     for(var=0; var<3; var++){
@@ -88,20 +88,20 @@ int CityInitialization(Building city[7][7]){
         }while(city[i][j].type!=0);
         double niv_contamination = rand()%(20);
         niv_contamination = (niv_contamination+20)/100;
-        city[i][j].contamination_level=niv_contamination;
+        city[i][j].contamination_level = niv_contamination;
 
     }
 
     return EXIT_SUCCESS;
 }
 
-void building_type_display(Building city[7][7]){
+void building_type_display(Building city[CITY_SIZE][CITY_SIZE]){
     int length;
     int width;
     
-    for(length=0; length<7; length++){
-        for(width=0; width<7; width++){
-            printf("%lf ", city[length][width].type);
+    for(length=0; length<CITY_SIZE; length++){
+        for(width=0; width<CITY_SIZE; width++){
+            printf("%d ", city[length][width].type);
         }
         printf("\n");
     }

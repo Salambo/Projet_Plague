@@ -1,8 +1,5 @@
 #include "server.h"
 
-#define NUM_CITIZENS	25
-#define NUM_DAYS		3
-
 int day = 0;
 int nb_citizens_left = NUM_CITIZENS;
 int current_citizen_index = 0;
@@ -13,7 +10,7 @@ int generate_citizens(City* city) {
     Citizen citizens[NUM_CITIZENS];
     pthread_t thread_server;
     long thread_id_server;
-    long thread_id_citizen[NUM_CITIZENS];
+    //long thread_id_citizen[NUM_CITIZENS];
     pthread_attr_t attr;
 
     /* Initialize mutex and condition variable objects */
@@ -31,12 +28,16 @@ int generate_citizens(City* city) {
         citizens[i].position_x = 0;
         citizens[i].position_y = 0;
 
-        /*thread_plug plug;
-        plug.citizen = &citizens[i];
-        plug.city = city;*/
+        /*thread_plug *plug = (thread_plug*)malloc(sizeof(thread_plug));
+        plug->shared_memory = citizens;
+        plug->thread_id_citizen = i;*/
 
-        pthread_create(&citizens[i].thread_id, &attr, citizen, (void*)thread_id_citizen[i]);
+        //pthread_create(&citizens[i].thread_id, &attr, citizen, (void*)thread_id_citizen[i]);
+        pthread_create(&citizens[i].thread_id, &attr, citizen, (void*)city);
     }
+
+    /*Envoi des citizens dans la mémoire partagée*/
+    city->citizens = citizens;
 
     pthread_join(thread_server, NULL);
     for(int i = 0; i < NUM_CITIZENS; i++) {
@@ -51,7 +52,7 @@ int generate_citizens(City* city) {
 
 void *citizen(void *plug)
 {
-	long id = (long)plug;
+	City *city = (City*)plug;
 
 	while(day < NUM_DAYS) {
 		pthread_mutex_lock(&thread_mutex);
@@ -61,7 +62,16 @@ void *citizen(void *plug)
 			pthread_cond_signal(&thread_signal);
 		}
 		
-        printf("vivant : %ld\n", id);
+        for(int i = 0; i < nb_citizens_left; i++) {
+            printf("je boucle\n");
+            printf("je suis : %d", city->citizens[i].type);
+            /*if(city->citizens[i].thread_id == pthread_self()) {
+                printf("je suis %ld et je me suis trouvé\n", pthread_self());
+                i = nb_citizens_left;
+            }*/
+        }
+
+        //printf("thread id : %d\n", pthread_self());
         printf("jour : %d\n", day);
         printf("citoyen : %d\n", current_citizen_index);
 		pthread_mutex_unlock(&thread_mutex);
@@ -83,6 +93,9 @@ void *server(void *plug)
         current_citizen_index = 0;
         printf("Appuyez sur une touche pour passer au jour suivant");
         getchar();
+        /**
+         * Envoyer un SIGNAL vers le fils d'affichage ici pour afficher l'évolution à chaque tour
+         */
 
         pthread_mutex_unlock(&thread_mutex);
     }

@@ -9,6 +9,20 @@
 #include <fcntl.h>
 #include <time.h>
 
+#define NUM_CITIZENS	25
+#define NUM_DAYS		3
+#define CITY_SIZE       7
+
+#define CITIZEN         1
+#define FIREMAN         2
+#define DOCTOR          3
+#define JOURNALIST      4
+
+#define WASTELAND       0
+#define HOUSE           1
+#define FIRESTATION     2
+#define HOSPITAL        3
+
 typedef struct Citizen {
     int type;
     double contamination_level;
@@ -34,8 +48,8 @@ typedef struct City {
 } City;
 
 typedef struct thread_plug {
-    Citizen* citizen;
-    City* city;
+    long *thread_id_citizen;
+    City* shared_memory;
 } thread_plug;
 
 /**
@@ -51,6 +65,6 @@ void *server(void *plug);
 int manage_parent(int pipe[], City *shared_memory);
 void manage_child(int pipe[], City *shared_memory);
 
-int CityInitialization(Building[7][7]);
-void building_type_display(Building[7][7]);
+int CityInitialization(Building[CITY_SIZE][CITY_SIZE]);
+void building_type_display(Building[CITY_SIZE][CITY_SIZE]);
 
