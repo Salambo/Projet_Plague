@@ -1,9 +1,9 @@
 CC=gcc
 CPPFLAGS=-Wall -Wextra
 
-.PHONY: all clean
-all: server-build journalist-build
-test: server-test journalist-test
+.PHONY: all
+all: server-build journalist-build clean
+test: server-test journalist-test clean
 
 
 server-build:
