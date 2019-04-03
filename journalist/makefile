@@ -5,10 +5,13 @@ SRCPATH=src/
 .PHONY: all clean
 all: main
 
-main: server.o
-	$(CC) -o plague-server.x $< main.c
+test: journalist.o
+	$(CC) -o plague-journalist-test.x $< test.c
 
-server.o: $(SRCPATH)*.c $(SRCPATH)*.h
+main: journalist.o
+	$(CC) -o plague-journalist.x $< main.c
+
+journalist.o: $(SRCPATH)*.c $(SRCPATH)*.h
 	$(CC) $(CPPFLAGS) $(SRCPATH)$*.c -c
 
 clean:

@@ -3,16 +3,23 @@ CPPFLAGS=-Wall -Wextra
 
 .PHONY: all clean
 all: server-build journalist-build
+test: server-test journalist-test
 
 
 server-build:
-	make -C ./server
+	@make -C ./server
 
 journalist-build:
-	make -C ./journalist
+	@make -C ./journalist
+
+server-test:
+	@make -C ./server test
+
+journalist-test:
+	@make -C ./journalist test
 
 clean:
-	rm -f *.o
+	@rm -f *.o
 	make -C ./server clean
 	make -C ./journalist clean
 

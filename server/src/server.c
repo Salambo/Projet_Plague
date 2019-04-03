@@ -1,6 +1,6 @@
 #include "server.h"
 
-Building** MemoryAllocationCity(){
+Building** MemoryAllocationCity(void){
 
     int i;
 
@@ -19,7 +19,7 @@ Building** MemoryAllocationCity(){
     return city; 
 }
 
-Building ** CityInitialization(Building ** city){
+Building** CityInitialization(Building ** city){
 
     /*
     Type: 0 = terrain vague capacité: 16
