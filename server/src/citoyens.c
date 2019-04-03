@@ -15,6 +15,8 @@ int generate_citizens(City* city) {
     long thread_id_server;
     long thread_id_citizen[NUM_CITIZENS];
     pthread_attr_t attr;
+    int length;
+    int width;
 
     /* Initialize mutex and condition variable objects */
 	pthread_mutex_init(&thread_mutex, NULL);
@@ -28,15 +30,24 @@ int generate_citizens(City* city) {
     for(int i = 0; i < NUM_CITIZENS; i++) {
         citizens[i].type = i;
         citizens[i].contamination_level = 0;
-        citizens[i].position_x = 0;
-        citizens[i].position_y = 0;
 
-        /*thread_plug plug;
+        do{
+            length = rand()%(6);
+            width = rand()%(6);
+        
+            citizens[i].position_x = length;
+            citizens[i].position_y = width;
+        }while( city->terrain[length][width].capacity_max <= city->terrain[length][width].people_number );
+        city->terrain[length][width].people_number ++;
+
+        /*thread_plug plug; Matthieu, je ne te pensais pas comme ça....
         plug.citizen = &citizens[i];
         plug.city = city;*/
 
         pthread_create(&citizens[i].thread_id, &attr, citizen, (void*)thread_id_citizen[i]);
     }
+
+    building_type_display(city->terrain);
 
     pthread_join(thread_server, NULL);
     for(int i = 0; i < NUM_CITIZENS; i++) {
