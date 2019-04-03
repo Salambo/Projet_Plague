@@ -61,7 +61,7 @@ int main(){
    
     pid_t pid;
     int anonymous_pipe[2];
-
+   
     if(pipe(anonymous_pipe)  == 1){
         printf("Error creating pipe. \n");
     }
