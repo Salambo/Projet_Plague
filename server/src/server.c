@@ -1,6 +1,6 @@
 #include "server.h"
 
-int manage_parent(int pipe[], City *shared_memory){
+int manage_parent(int pipe[], City *shared_memory, pid_t pid_child){
     /*Initialisation ville*/
     /*= MemoryAllocationCity(); /*création du tableau city[7][7]*/
 
@@ -22,16 +22,25 @@ int manage_parent(int pipe[], City *shared_memory){
     /*Création des tubes nommés/files de messages pour les clients/autres programmes*/
 
 
-
-    wait(NULL); /*Doit attendre que son fils/processus 2 soit mort*/
-
     /*Placement des citoyens*/
     printf("Fin initialisation. \n");
+    
+    usleep(500);
+    kill(pid_child, SIGUSR1);
+    printf("signal envoyé au fils %d \n", pid_child);
+    wait(NULL); /*Doit attendre que son fils/processus 2 soit mort*/
 
     /*Simulation : 100 tours*/
 }
 
 void manage_child(int pipe[], City *shared_memory){
+    sigset_t sigset;
+    sigemptyset(&sigset);
+    sigaddset(&sigset, SIGUSR1);
+    sigprocmask(SIG_SETMASK, &sigset, NULL);
+
+    sigwaitinfo(&sigset, NULL);
+    printf("signal reçu\n");
     
     /*Initialisation threads - citoyen */
 
@@ -41,10 +50,10 @@ void manage_child(int pipe[], City *shared_memory){
     if(shmd == -1){
         printf("ça marche pas!");
     }
-    if(ftruncate(shmd, sizeof(struct City))== -1){
+    if(ftruncate(shmd, sizeof(City))== -1){
         printf("ça marche pas bis");
     }
-    shared_memory = mmap(NULL, sizeof(struct City), PROT_READ|PROT_WRITE, MAP_SHARED, shmd, 0);
+    shared_memory = mmap(NULL, sizeof(City), PROT_READ|PROT_WRITE, MAP_SHARED, shmd, 0);
 
     generate_citizens(shared_memory);
 }

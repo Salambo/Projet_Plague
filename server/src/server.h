@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
+#include <signal.h>
 
 #define NUM_CITIZENS	25
 #define NUM_DAYS		3
@@ -62,7 +63,7 @@ int generate_citizens(City* city);
 void *citizen(void *plug);
 void *server(void *plug);
 
-int manage_parent(int pipe[], City *shared_memory);
+int manage_parent(int pipe[], City *shared_memory, pid_t pid_child);
 void manage_child(int pipe[], City *shared_memory);
 
 int CityInitialization(Building[CITY_SIZE][CITY_SIZE]);

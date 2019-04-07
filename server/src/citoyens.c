@@ -58,24 +58,27 @@ void *citizen(void *plug)
 		pthread_mutex_lock(&thread_mutex);
 		current_citizen_index++;
 
-		if (current_citizen_index == nb_citizens_left) {
-			pthread_cond_signal(&thread_signal);
-		}
+		if (current_citizen_index <= nb_citizens_left) {
+            printf("thread n°%ld\n", pthread_self());
 		
-        for(int i = 0; i < nb_citizens_left; i++) {
-            printf("je boucle\n");
-            printf("je suis : %d", city->citizens[i].type);
-            /*if(city->citizens[i].thread_id == pthread_self()) {
-                printf("je suis %ld et je me suis trouvé\n", pthread_self());
-                i = nb_citizens_left;
-            }*/
-        }
+            for(int i = 0; i < nb_citizens_left; i++) {
+                // printf("je boucle\n");
+                // printf("je suis : %d", city->citizens[i].type);
+                if(city->citizens[i].thread_id == pthread_self()) {
+                    printf("je suis %ld et je me suis trouvé\n", pthread_self());
+                    i = nb_citizens_left;
+                }
+            }
 
-        //printf("thread id : %d\n", pthread_self());
-        printf("jour : %d\n", day);
-        printf("citoyen : %d\n", current_citizen_index);
+            //printf("thread id : %d\n", pthread_self());
+            printf("jour : %d\n", day);
+            printf("citoyen : %d\n", current_citizen_index);
+		}
+
+        pthread_cond_signal(&thread_signal);
 		pthread_mutex_unlock(&thread_mutex);
-        usleep(500);
+        usleep(1000);
+        while(current_citizen_index >= nb_citizens_left);
 	}
 	pthread_exit(NULL);
 }
