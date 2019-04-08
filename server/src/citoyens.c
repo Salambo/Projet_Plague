@@ -13,7 +13,7 @@ int generate_citizens(City* city) {
     //long thread_id_citizen[NUM_CITIZENS];
     pthread_attr_t attr;
     int length;
-    int width;
+    int height;
 
     /* Initialize mutex and condition variable objects */
 	pthread_mutex_init(&thread_mutex, NULL);
@@ -27,15 +27,15 @@ int generate_citizens(City* city) {
     for(int i = 0; i < NUM_CITIZENS; i++) {
         citizens[i].type = i;
         citizens[i].contamination_level = 0;
-
+        /* Placement des citoyens au début */
         do{
-            length = rand()%(6);
-            width = rand()%(6);
+            length = rand()%(7);
+            height = rand()%(7);
         
             citizens[i].position_x = length;
-            citizens[i].position_y = width;
-        }while( city->terrain[length][width].capacity_max <= city->terrain[length][width].people_number );
-        city->terrain[length][width].people_number ++;
+            citizens[i].position_y = height;
+        }while( city->terrain[length][height].capacity_max <= city->terrain[length][height].people_number );
+        city->terrain[length][height].people_number ++;
 
         /*thread_plug plug; Matthieu, je ne te pensais pas comme ça....
         plug.citizen = &citizens[i];
@@ -106,15 +106,22 @@ void *citizen(void *plug)
 
 void *server(void *plug)
 {
-	long id = (long)plug;
+	City *city = (City*)plug;
 
     pthread_mutex_lock(&thread_mutex);
     while(day < NUM_DAYS) {
+        if(CityContamination(city->terrain) == EXIT_FAILURE) {
+        printf("Erreur lors de l'évolution de la contamination des terrains");
+        return EXIT_FAILURE;
+        }   
+        
+        building_type_display(city->terrain);
         day++;
         while (current_citizen_index < nb_citizens_left) {
             pthread_cond_wait(&thread_signal, &thread_mutex);
         }
         current_citizen_index = 0;
+        
         printf("Appuyez sur une touche pour passer au jour suivant");
         getchar();
         /**

@@ -31,6 +31,7 @@ int manage_parent(int pipe[], City *shared_memory, pid_t pid_child){
     wait(NULL); /*Doit attendre que son fils/processus 2 soit mort*/
 
     printf("Le fils se termine\n");
+    building_type_display(shared_memory->terrain);
 
     /*Simulation : 100 tours*/
 }
@@ -55,7 +56,7 @@ void manage_child(int pipe[], City *shared_memory){
 
 int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
     int length;
-    int width;
+    int height;
     int var;
     int i;
     int j;
@@ -66,12 +67,12 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
             3 = Hopital 12
     */
 
-    for(length=0; length<7; length++){
-        for(width=0; width<7; width++){
-            city[length][width].type= 0;
-            city[length][width].contamination_level= 0;
-            city[length][width].people_number = 0;
-            city[length][width].dead_body_number = 0;
+    for(length = 0; length < CITY_SIZE; length ++){
+        for(height = 0; height < CITY_SIZE; height ++){
+            city[length][height].type= 0;
+            city[length][height].contamination_level= 0;
+            city[length][height].people_number = 0;
+            city[length][height].dead_body_number = 0;
         }
     }
 
@@ -81,16 +82,16 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
 
     for(var=0; var<12; var++){ /*Créations des maisons*/
         do{
-            i=rand()%(6);
-            j=rand()%(6);
+            i=rand()%(CITY_SIZE);
+            j=rand()%(CITY_SIZE);
         }while(city[i][j].type!=0);
         city[i][j].type = HOUSE;
     }
     
     for(var=0; var<3; var++){
         do{
-            i=rand()%(6);
-            j=rand()%(6);
+            i=rand()%(CITY_SIZE);
+            j=rand()%(CITY_SIZE);
         }while(city[i][j].type!=0);
         double niv_contamination = rand()%(20);
         niv_contamination = (niv_contamination+20)/100;
@@ -98,19 +99,19 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
 
     }
 
-    for(length=0; length<7; length++){
-        for(width=0; width<7; width++){
-            if(city[length][width].type == 0){
-                city[length][width].capacity_max = 16;
+    for(length = 0; length < CITY_SIZE; length++){
+        for(height = 0; height < CITY_SIZE; height++){
+            if(city[length][height].type == 0){
+                city[length][height].capacity_max = 16;
             }
-            else if(city[length][width].type == 1){
-                city[length][width].capacity_max = 6;
+            else if(city[length][height].type == 1){
+                city[length][height].capacity_max = 6;
             }
-            else if(city[length][width].type == 2){
-                city[length][width].capacity_max = 8;
+            else if(city[length][height].type == 2){
+                city[length][height].capacity_max = 8;
             }
             else{
-                city[length][width].capacity_max = 12;
+                city[length][height].capacity_max = 12;
             }
         }
     }
@@ -120,11 +121,11 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
 
 void building_type_display(Building city[CITY_SIZE][CITY_SIZE]){
     int length;
-    int width;
+    int height;
     
-    for(length=0; length<7; length++){
-        for(width=0; width<7; width++){
-            printf("%i ", city[length][width].people_number);
+    for(length=0; length < CITY_SIZE; length++){
+        for(height=0; height < CITY_SIZE; height++){
+            printf("%i ", city[length][height].contamination_level);
         }
         printf("\n");
     }
@@ -132,4 +133,58 @@ void building_type_display(Building city[CITY_SIZE][CITY_SIZE]){
 
 int rand_between_a_b(int a, int b){
     return rand()%(b-a) +a;
+}
+
+int CaseContamination(Building case, double niv_contamination){
+    if(rand_between_a_b(0, 100) > 15 && case.type == 0){
+        double niv_conta_plus = rand_between_a_b(1, 20)/100 * (niv_contamination - case.niv_contamination);
+        case.niv_contamination = case.niv_contamination + niv_conta_plus;
+    }
+}
+
+int CityContamination(Building city[CITY_SIZE][CITY_SIZE]){
+
+    int length;
+    int height;
+
+    for(length = 0; length < CITY_SIZE; length++){
+        for(height = 0; height < CITY_SIZE; height++){
+            if(city[length][height].type == 0 && city[length][height].contamination_level > 0){
+                if(length != 0){
+                    CaseContamination(city[length-1][height], city[length][height].contamination_level);
+                    if(height != 0){
+                        /*fonction pour contaminer city[length-1][height-1]*/
+                        CaseContamination(city[length-1][height-1], city[length][height].contamination_level);
+                    }
+                    if(height != 6){
+                        /*fonction pour contaminer city[length-1][height+1]*/
+                        CaseContamination(city[length-1][height+1], city[length][height].contamination_level);
+                    }
+                }
+                if(length != 6){
+                    /*fonction pour contaminer city[length+1][height]*/
+                    CaseContamination(city[length+1][height], city[length][height].contamination_level);
+                    if(height != 0){
+                        /*fonction pour contaminer city[length+1][height-1]*/
+                        CaseContamination(city[length+1][height-1], city[length][height].contamination_level);
+                    }
+                    if(height != 6){
+                        /*fonction pour contaminer city[length+1][height+1]*/
+                        CaseContamination(city[length+1][height+1], city[length][height].contamination_level);
+                    }
+                }
+                if(height != 0){
+                    /*fonction pour contaminer city[length][height-1]*/
+                    CaseContamination(city[length][height-1], city[length][height].contamination_level);
+                }
+                if(height != 6){
+                    /*fonction pour contaminer city[length][height+1]*/
+                    CaseContamination(city[length][height+1], city[length][height].contamination_level);
+                }
+
+            }
+        }
+    }
+
+    return EXIT_SUCCESS;
 }
