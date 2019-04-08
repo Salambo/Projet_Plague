@@ -5,16 +5,16 @@ int manage_parent(int pipe[], City *shared_memory, pid_t pid_child){
     /*= MemoryAllocationCity(); /*création du tableau city[7][7]*/
 
     Building city[CITY_SIZE][CITY_SIZE];
-    if(CityInitialization(city) == EXIT_FAILURE) {
+    if(CityInitialization(shared_memory->terrain) == EXIT_FAILURE) {
         printf("Erreur lors de l'initialisation de la ville");
         return EXIT_FAILURE;
     }
 
 
     /*test*/
-    building_type_display(city);
+    //shared_memory->terrain = city;
 
-    shared_memory->terrain = city;
+    building_type_display(shared_memory->terrain);
 
     /*Initialisation des niveaux de contamination des terrains*/
     
@@ -29,6 +29,8 @@ int manage_parent(int pipe[], City *shared_memory, pid_t pid_child){
     kill(pid_child, SIGUSR1);
     printf("signal envoyé au fils %d \n", pid_child);
     wait(NULL); /*Doit attendre que son fils/processus 2 soit mort*/
+
+    printf("Le fils se termine\n");
 
     /*Simulation : 100 tours*/
 }
@@ -46,16 +48,9 @@ void manage_child(int pipe[], City *shared_memory){
 
     /*fin fils 1/processus 2*/
 
-    int shmd = shm_open("/city", O_CREAT|O_RDWR, S_IRUSR|S_IWUSR);
-    if(shmd == -1){
-        printf("ça marche pas!");
-    }
-    if(ftruncate(shmd, sizeof(City))== -1){
-        printf("ça marche pas bis");
-    }
-    shared_memory = mmap(NULL, sizeof(City), PROT_READ|PROT_WRITE, MAP_SHARED, shmd, 0);
-
+    building_type_display(shared_memory->terrain);
     generate_citizens(shared_memory);
+    printf("Je me termine en tant que fils\n");
 }
 
 int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
@@ -114,4 +109,8 @@ void building_type_display(Building city[CITY_SIZE][CITY_SIZE]){
         }
         printf("\n");
     }
+}
+
+int rand_between_a_b(int a, int b){
+    return rand()%(b-a) +a;
 }

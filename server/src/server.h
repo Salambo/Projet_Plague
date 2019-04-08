@@ -44,8 +44,8 @@ typedef struct Building{
 } Building;
 
 typedef struct City {
-    Building** terrain;
-    Citizen* citizens;
+    Building terrain[CITY_SIZE][CITY_SIZE];
+    Citizen citizens[NUM_CITIZENS];
 } City;
 
 typedef struct thread_plug {
@@ -68,4 +68,5 @@ void manage_child(int pipe[], City *shared_memory);
 
 int CityInitialization(Building[CITY_SIZE][CITY_SIZE]);
 void building_type_display(Building[CITY_SIZE][CITY_SIZE]);
+int rand_between_a_b(int a, int b);
 

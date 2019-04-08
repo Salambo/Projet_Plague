@@ -23,21 +23,21 @@ int generate_citizens(City* city) {
 
     pthread_create(&thread_server, &attr, server, (void*)thread_id_server);
     for(int i = 0; i < NUM_CITIZENS; i++) {
-        citizens[i].type = i;
-        citizens[i].contamination_level = 0;
-        citizens[i].position_x = 0;
-        citizens[i].position_y = 0;
+        city->citizens[i].type = i;
+        city->citizens[i].contamination_level = 0;
+        city->citizens[i].position_x = 0;
+        city->citizens[i].position_y = 0;
 
         /*thread_plug *plug = (thread_plug*)malloc(sizeof(thread_plug));
         plug->shared_memory = citizens;
         plug->thread_id_citizen = i;*/
 
         //pthread_create(&citizens[i].thread_id, &attr, citizen, (void*)thread_id_citizen[i]);
-        pthread_create(&citizens[i].thread_id, &attr, citizen, (void*)city);
+        pthread_create(&city->citizens[i].thread_id, &attr, citizen, (void*)city);
     }
 
     /*Envoi des citizens dans la mémoire partagée*/
-    city->citizens = citizens;
+    //city->citizens = citizens;
 
     pthread_join(thread_server, NULL);
     for(int i = 0; i < NUM_CITIZENS; i++) {
@@ -56,18 +56,29 @@ void *citizen(void *plug)
 
 	while(day < NUM_DAYS) {
 		pthread_mutex_lock(&thread_mutex);
-		current_citizen_index++;
 
 		if (current_citizen_index <= nb_citizens_left) {
+		    current_citizen_index++;
             printf("thread n°%ld\n", pthread_self());
 		
             for(int i = 0; i < nb_citizens_left; i++) {
-                // printf("je boucle\n");
-                // printf("je suis : %d", city->citizens[i].type);
-                if(city->citizens[i].thread_id == pthread_self()) {
+                //printf("je suis : %d\n", city->citizens[i].type);
+                //printf("je boucle\n");
+                /*if(city->citizens[i].thread_id != pthread_self()) {
                     printf("je suis %ld et je me suis trouvé\n", pthread_self());
                     i = nb_citizens_left;
-                }
+
+                    if(rand_between_a_b(0, 100) > 60) {
+                        //Citoyen bouge, gagne 2% de contamination de la case sur laquelle il va
+
+
+                        city->citizens[i].contamination_level += city->terrain[city->citizens[i].position_x][city->citizens[i]->position_y].contamination_level * 0.02;
+                    } else {
+                        //Citoyen reste sur place, gagne 5% de contamination
+                    }
+
+
+                }*/
             }
 
             //printf("thread id : %d\n", pthread_self());
@@ -80,6 +91,7 @@ void *citizen(void *plug)
         usleep(1000);
         while(current_citizen_index >= nb_citizens_left);
 	}
+
 	pthread_exit(NULL);
 }
 
