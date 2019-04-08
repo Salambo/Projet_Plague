@@ -1,11 +1,11 @@
 #include "server.h"
 
-int manage_parent(int pipe[], City *shared_memory){
+int manage_parent(int pipe[], City *shared_memory, pid_t pid_child){
     /*Initialisation ville*/
     /*= MemoryAllocationCity(); /*création du tableau city[7][7]*/
 
-    Building city[7][7];
-    if(CityInitialization(city) == EXIT_FAILURE) {
+    Building city[CITY_SIZE][CITY_SIZE];
+    if(CityInitialization(shared_memory->terrain) == EXIT_FAILURE) {
         printf("Erreur lors de l'initialisation de la ville");
         return EXIT_FAILURE;
     }
@@ -14,7 +14,7 @@ int manage_parent(int pipe[], City *shared_memory){
     /*test*/
     /*building_type_display(city);*/
 
-    shared_memory->terrain = city;
+    building_type_display(shared_memory->terrain);
 
     /*Initialisation des niveaux de contamination des terrains*/
     
@@ -22,34 +22,38 @@ int manage_parent(int pipe[], City *shared_memory){
     /*Création des tubes nommés/files de messages pour les clients/autres programmes*/
 
 
-
-    wait(NULL); /*Doit attendre que son fils/processus 2 soit mort*/
-
     /*Placement des citoyens*/
     printf("Fin initialisation. \n");
+    
+    usleep(500);
+    kill(pid_child, SIGUSR1);
+    printf("signal envoyé au fils %d \n", pid_child);
+    wait(NULL); /*Doit attendre que son fils/processus 2 soit mort*/
+
+    printf("Le fils se termine\n");
 
     /*Simulation : 100 tours*/
 }
 
 void manage_child(int pipe[], City *shared_memory){
+    sigset_t sigset;
+    sigemptyset(&sigset);
+    sigaddset(&sigset, SIGUSR1);
+    sigprocmask(SIG_SETMASK, &sigset, NULL);
+
+    sigwaitinfo(&sigset, NULL);
+    printf("signal reçu\n");
     
     /*Initialisation threads - citoyen */
 
     /*fin fils 1/processus 2*/
 
-    int shmd = shm_open("/city", O_CREAT|O_RDWR, S_IRUSR|S_IWUSR);
-    if(shmd == -1){
-        printf("ça marche pas!");
-    }
-    if(ftruncate(shmd, sizeof(struct City))== -1){
-        printf("ça marche pas bis");
-    }
-    shared_memory = mmap(NULL, sizeof(struct City), PROT_READ|PROT_WRITE, MAP_SHARED, shmd, 0);
-
+    building_type_display(shared_memory->terrain);
     generate_citizens(shared_memory);
+    printf("Je me termine en tant que fils\n");
 }
 
-int CityInitialization(Building city[7][7]){
+int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
     int length;
     int width;
     int var;
@@ -71,16 +75,16 @@ int CityInitialization(Building city[7][7]){
         }
     }
 
-    city[3][3].type= 3; /*Création de l'hopital*/
-    city[0][6].type= 2; /*Création des casernes*/
-    city[6][0].type= 2;
+    city[3][3].type = HOSPITAL;
+    city[0][6].type = FIRESTATION;
+    city[6][0].type = FIRESTATION;
 
     for(var=0; var<12; var++){ /*Créations des maisons*/
         do{
             i=rand()%(6);
             j=rand()%(6);
         }while(city[i][j].type!=0);
-        city[i][j].type= 1;
+        city[i][j].type = HOUSE;
     }
     
     for(var=0; var<3; var++){
@@ -90,7 +94,7 @@ int CityInitialization(Building city[7][7]){
         }while(city[i][j].type!=0);
         double niv_contamination = rand()%(20);
         niv_contamination = (niv_contamination+20)/100;
-        city[i][j].contamination_level=niv_contamination;
+        city[i][j].contamination_level = niv_contamination;
 
     }
 
@@ -114,7 +118,7 @@ int CityInitialization(Building city[7][7]){
     return EXIT_SUCCESS;
 }
 
-void building_type_display(Building city[7][7]){
+void building_type_display(Building city[CITY_SIZE][CITY_SIZE]){
     int length;
     int width;
     
@@ -124,4 +128,8 @@ void building_type_display(Building city[7][7]){
         }
         printf("\n");
     }
+}
+
+int rand_between_a_b(int a, int b){
+    return rand()%(b-a) +a;
 }

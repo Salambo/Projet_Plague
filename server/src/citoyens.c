@@ -1,8 +1,5 @@
 #include "server.h"
 
-#define NUM_CITIZENS	25
-#define NUM_DAYS		3
-
 int day = 0;
 int nb_citizens_left = NUM_CITIZENS;
 int current_citizen_index = 0;
@@ -13,7 +10,7 @@ int generate_citizens(City* city) {
     Citizen citizens[NUM_CITIZENS];
     pthread_t thread_server;
     long thread_id_server;
-    long thread_id_citizen[NUM_CITIZENS];
+    //long thread_id_citizen[NUM_CITIZENS];
     pthread_attr_t attr;
     int length;
     int width;
@@ -44,10 +41,12 @@ int generate_citizens(City* city) {
         plug.citizen = &citizens[i];
         plug.city = city;*/
 
-        pthread_create(&citizens[i].thread_id, &attr, citizen, (void*)thread_id_citizen[i]);
+        //pthread_create(&citizens[i].thread_id, &attr, citizen, (void*)thread_id_citizen[i]);
+        pthread_create(&city->citizens[i].thread_id, &attr, citizen, (void*)city);
     }
 
-    building_type_display(city->terrain);
+    /*Envoi des citizens dans la mémoire partagée*/
+    //city->citizens = citizens;
 
     pthread_join(thread_server, NULL);
     for(int i = 0; i < NUM_CITIZENS; i++) {
@@ -62,22 +61,46 @@ int generate_citizens(City* city) {
 
 void *citizen(void *plug)
 {
-	long id = (long)plug;
+	City *city = (City*)plug;
 
 	while(day < NUM_DAYS) {
 		pthread_mutex_lock(&thread_mutex);
-		current_citizen_index++;
 
-		if (current_citizen_index == nb_citizens_left) {
-			pthread_cond_signal(&thread_signal);
-		}
+		if (current_citizen_index <= nb_citizens_left) {
+		    current_citizen_index++;
+            printf("thread n°%ld\n", pthread_self());
 		
-        printf("vivant : %ld\n", id);
-        printf("jour : %d\n", day);
-        printf("citoyen : %d\n", current_citizen_index);
+            for(int i = 0; i < nb_citizens_left; i++) {
+                //printf("je suis : %d\n", city->citizens[i].type);
+                //printf("je boucle\n");
+                /*if(city->citizens[i].thread_id != pthread_self()) {
+                    printf("je suis %ld et je me suis trouvé\n", pthread_self());
+                    i = nb_citizens_left;
+
+                    if(rand_between_a_b(0, 100) > 60) {
+                        //Citoyen bouge, gagne 2% de contamination de la case sur laquelle il va
+
+
+                        city->citizens[i].contamination_level += city->terrain[city->citizens[i].position_x][city->citizens[i]->position_y].contamination_level * 0.02;
+                    } else {
+                        //Citoyen reste sur place, gagne 5% de contamination
+                    }
+
+
+                }*/
+            }
+
+            //printf("thread id : %d\n", pthread_self());
+            printf("jour : %d\n", day);
+            printf("citoyen : %d\n", current_citizen_index);
+		}
+
+        pthread_cond_signal(&thread_signal);
 		pthread_mutex_unlock(&thread_mutex);
-        usleep(500);
+        usleep(1000);
+        while(current_citizen_index >= nb_citizens_left);
 	}
+
 	pthread_exit(NULL);
 }
 
@@ -94,6 +117,9 @@ void *server(void *plug)
         current_citizen_index = 0;
         printf("Appuyez sur une touche pour passer au jour suivant");
         getchar();
+        /**
+         * Envoyer un SIGNAL vers le fils d'affichage ici pour afficher l'évolution à chaque tour
+         */
 
         pthread_mutex_unlock(&thread_mutex);
     }
