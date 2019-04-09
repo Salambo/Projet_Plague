@@ -12,7 +12,7 @@ int manage_parent(int pipe[], City *shared_memory, pid_t pid_child){
 
 
     /*test*/
-    //shared_memory->terrain = city;
+    /*building_type_display(city);*/
 
     building_type_display(shared_memory->terrain);
 
@@ -65,10 +65,12 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
             3 = Hopital 12
     */
 
-    for(length=0; length<CITY_SIZE; length++){
-        for(width=0; width<CITY_SIZE; width++){
-            city[length][width].type = WASTELAND;
-            city[length][width].contamination_level = 0;
+    for(length=0; length<7; length++){
+        for(width=0; width<7; width++){
+            city[length][width].type= 0;
+            city[length][width].contamination_level= 0;
+            city[length][width].people_number = 0;
+            city[length][width].dead_body_number = 0;
         }
     }
 
@@ -95,6 +97,23 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
 
     }
 
+    for(length=0; length<7; length++){
+        for(width=0; width<7; width++){
+            if(city[length][width].type == 0){
+                city[length][width].capacity_max = 16;
+            }
+            else if(city[length][width].type == 1){
+                city[length][width].capacity_max = 6;
+            }
+            else if(city[length][width].type == 2){
+                city[length][width].capacity_max = 8;
+            }
+            else{
+                city[length][width].capacity_max = 12;
+            }
+        }
+    }
+
     return EXIT_SUCCESS;
 }
 
@@ -102,9 +121,9 @@ void building_type_display(Building city[CITY_SIZE][CITY_SIZE]){
     int length;
     int width;
     
-    for(length=0; length<CITY_SIZE; length++){
-        for(width=0; width<CITY_SIZE; width++){
-            printf("%d ", city[length][width].type);
+    for(length=0; length<7; length++){
+        for(width=0; width<7; width++){
+            printf("%i ", city[length][width].people_number);
         }
         printf("\n");
     }
