@@ -131,6 +131,20 @@ void building_type_display(Building city[CITY_SIZE][CITY_SIZE]){
     printf("\n");
 }
 
+void building_conta_display(Building city[CITY_SIZE][CITY_SIZE]){
+    int length;
+    int width;
+    printf("Type de Buildings :\n");
+    for(length=0; length<7; length++){
+        for(width=0; width<7; width++){
+            printf("%lf ", city[length][width].contamination_level);
+        }
+        printf("\n");
+    }
+
+    printf("\n");
+}
+
 void building_population_display(Building city[CITY_SIZE][CITY_SIZE]){
     int length;
     int width;

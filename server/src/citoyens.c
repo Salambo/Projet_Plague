@@ -189,7 +189,7 @@ void *server(void *plug)
                 return EXIT_FAILURE;
             }
         }
-        building_type_display(city->terrain);
+        building_conta_display(city->terrain);
 
         
         printf("Appuyez sur une touche pour passer au jour suivant \n");
