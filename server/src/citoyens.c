@@ -154,8 +154,6 @@ void *citizen(void *plug)
                     i = nb_citizens_left;
                 }
             }
-
-            //printf("citoyen : %d\n", current_citizen_index);
 		}
 
         pthread_cond_signal(&thread_signal);
@@ -180,7 +178,7 @@ void *server(void *plug)
         current_citizen_index = 0;
         printf("jour : %d\n", day);
         building_population_display(city->terrain);
-        show_citoyen_contamination_level(city);
+        //show_citoyen_contamination_level(city);
         printf("Appuyez sur une touche pour passer au jour suivant\n");
         getchar();
         /**
