@@ -7,9 +7,7 @@ pthread_mutex_t thread_mutex;
 pthread_cond_t thread_signal;
 
 int generate_citizens(City* city) {
-    Citizen citizens[NUM_CITIZENS];
     pthread_t thread_server;
-    //long thread_id_citizen[NUM_CITIZENS];
     pthread_attr_t attr;
     int length;
     int width;
@@ -62,8 +60,8 @@ int generate_citizens(City* city) {
                 length = rand()%(6);
                 width = rand()%(6);
             
-                citizens[i].position_x = length;
-                citizens[i].position_y = width;
+                city->citizens[i].position_x = length;
+                city->citizens[i].position_y = width;
             } while(city->terrain[length][width].capacity_max <= city->terrain[length][width].people_number);
             city->terrain[length][width].people_number++;
         }
@@ -73,7 +71,7 @@ int generate_citizens(City* city) {
 
     pthread_join(thread_server, NULL);
     for(int i = 0; i < NUM_CITIZENS; i++) {
-        pthread_join(citizens[i].thread_id, NULL);
+        pthread_join(&city->citizens[i].thread_id, NULL);
     }
 
     pthread_attr_destroy(&attr);
