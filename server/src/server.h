@@ -11,8 +11,7 @@
 #include <signal.h>
 
 #define NUM_CITIZENS	25+12 // 25 Citoyens normaux + 12 citoyens spéciaux
-#define NUM_CITIZENS    3
-#define NUM_DAYS		3
+#define NUM_DAYS		100
 #define CITY_SIZE       7
 
 #define CITIZEN         1
