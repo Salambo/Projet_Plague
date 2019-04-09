@@ -48,7 +48,6 @@ void manage_child(int pipe[], City *shared_memory){
 
     /*fin fils 1/processus 2*/
 
-    building_type_display(shared_memory->terrain);
     generate_citizens(shared_memory);
     printf("Je me termine en tant que fils\n");
 }

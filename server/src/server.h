@@ -29,18 +29,18 @@ typedef struct Citizen {
     double contamination_level;
     int position_x;
     int position_y;
+    int malade;
+    int dead;
+    int to_remove;
     pthread_t thread_id;
 } Citizen;
 
 typedef struct Building{
-
     int type;
     int people_number;
     int dead_body_number;
     int capacity_max; /*utile?*/
     double contamination_level;
-    Citizen* citizens;
-
 } Building;
 
 typedef struct City {
@@ -52,6 +52,11 @@ typedef struct thread_plug {
     long *thread_id_citizen;
     City* shared_memory;
 } thread_plug;
+
+typedef struct Coord {
+    int x;
+    int y;
+} Coord;
 
 /**
  * Génération des citoyens et placement sur la grille
@@ -69,4 +74,4 @@ void manage_child(int pipe[], City *shared_memory);
 int CityInitialization(Building[CITY_SIZE][CITY_SIZE]);
 void building_type_display(Building[CITY_SIZE][CITY_SIZE]);
 int rand_between_a_b(int a, int b);
-
+Coord newPlacement(int x, int y);
