@@ -14,10 +14,10 @@ int main(){
     if(shmd == -1){
         printf("ça marche pas!");
     }
-    if(ftruncate(shmd, sizeof(struct City))== -1){
+    if(ftruncate(shmd, sizeof(City))== -1){
         printf("ça marche pas bis");
     }
-    shared_memory = mmap(NULL, sizeof(struct City), PROT_READ|PROT_WRITE, MAP_SHARED, shmd, 0);
+    shared_memory = mmap(NULL, sizeof(City), PROT_READ|PROT_WRITE, MAP_SHARED, shmd, 0);
 
     pid = fork();
 
@@ -27,7 +27,7 @@ int main(){
     } else if(pid == 0){ /*fils*/
         manage_child(anonymous_pipe, shared_memory);
     } else {
-        manage_parent(anonymous_pipe, shared_memory);
+        manage_parent(anonymous_pipe, shared_memory, pid);
     }
 
     /*création du fils 2/processus 3 ?*/
