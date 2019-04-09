@@ -31,7 +31,6 @@ int manage_parent(int pipe[], City *shared_memory, pid_t pid_child){
     wait(NULL); /*Doit attendre que son fils/processus 2 soit mort*/
 
     printf("Le fils se termine\n");
-    building_type_display(shared_memory->terrain);
 
     /*Simulation : 100 tours*/
 }
@@ -125,7 +124,7 @@ void building_type_display(Building city[CITY_SIZE][CITY_SIZE]){
     
     for(length=0; length < CITY_SIZE; length++){
         for(height=0; height < CITY_SIZE; height++){
-            printf("%i ", city[length][height].contamination_level);
+            printf("%lf ", city[length][height].contamination_level);
         }
         printf("\n");
     }
@@ -135,53 +134,65 @@ int rand_between_a_b(int a, int b){
     return rand()%(b-a) +a;
 }
 
-int CaseContamination(Building case, double niv_contamination){
-    if(rand_between_a_b(0, 100) > 15 && case.type == 0){
-        double niv_conta_plus = rand_between_a_b(1, 20)/100 * (niv_contamination - case.niv_contamination);
-        case.niv_contamination = case.niv_contamination + niv_conta_plus;
+double CaseContamination(Building casse, double niv_contamination){
+    if(casse.contamination_level < niv_contamination && casse.type == 0){
+        if(rand_between_a_b(0, 100) < 16){
+            double niv_conta_plus = niv_contamination - casse.contamination_level;
+            niv_conta_plus = (rand_between_a_b(1,20)*0.01)* niv_conta_plus;
+            casse.contamination_level = casse.contamination_level + niv_conta_plus;
+            printf("%lf\n", casse.contamination_level);
+        }
     }
+    return casse.contamination_level;
 }
 
 int CityContamination(Building city[CITY_SIZE][CITY_SIZE]){
-
     int length;
     int height;
 
     for(length = 0; length < CITY_SIZE; length++){
         for(height = 0; height < CITY_SIZE; height++){
+            
             if(city[length][height].type == 0 && city[length][height].contamination_level > 0){
                 if(length != 0){
-                    CaseContamination(city[length-1][height], city[length][height].contamination_level);
+
+                    city[length-1][height].contamination_level= CaseContamination(city[length-1][height], city[length][height].contamination_level);
+
                     if(height != 0){
+
                         /*fonction pour contaminer city[length-1][height-1]*/
-                        CaseContamination(city[length-1][height-1], city[length][height].contamination_level);
+                        city[length-1][height-1].contamination_level=CaseContamination(city[length-1][height-1], city[length][height].contamination_level);
                     }
+
                     if(height != 6){
+
                         /*fonction pour contaminer city[length-1][height+1]*/
-                        CaseContamination(city[length-1][height+1], city[length][height].contamination_level);
+                        city[length-1][height+1].contamination_level=CaseContamination(city[length-1][height+1], city[length][height].contamination_level);
                     }
+
                 }
+
                 if(length != 6){
                     /*fonction pour contaminer city[length+1][height]*/
-                    CaseContamination(city[length+1][height], city[length][height].contamination_level);
+                    city[length+1][height].contamination_level=CaseContamination(city[length+1][height], city[length][height].contamination_level);
                     if(height != 0){
                         /*fonction pour contaminer city[length+1][height-1]*/
-                        CaseContamination(city[length+1][height-1], city[length][height].contamination_level);
+                        city[length+1][height-1].contamination_level=CaseContamination(city[length+1][height-1], city[length][height].contamination_level);
                     }
                     if(height != 6){
                         /*fonction pour contaminer city[length+1][height+1]*/
-                        CaseContamination(city[length+1][height+1], city[length][height].contamination_level);
+                        city[length+1][height+1].contamination_level=CaseContamination(city[length+1][height+1], city[length][height].contamination_level);
                     }
                 }
                 if(height != 0){
                     /*fonction pour contaminer city[length][height-1]*/
-                    CaseContamination(city[length][height-1], city[length][height].contamination_level);
+                    city[length][height-1].contamination_level=CaseContamination(city[length][height-1], city[length][height].contamination_level);
                 }
                 if(height != 6){
                     /*fonction pour contaminer city[length][height+1]*/
-                    CaseContamination(city[length][height+1], city[length][height].contamination_level);
+                    city[length][height+1].contamination_level=CaseContamination(city[length][height+1], city[length][height].contamination_level);
                 }
-
+                
             }
         }
     }

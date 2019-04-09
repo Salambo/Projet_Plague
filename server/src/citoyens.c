@@ -23,7 +23,7 @@ int generate_citizens(City* city) {
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-    pthread_create(&thread_server, &attr, server, (void*)thread_id_server);
+    pthread_create(&thread_server, &attr, server, (void*)city);
     for(int i = 0; i < NUM_CITIZENS; i++) {
         citizens[i].type = i;
         citizens[i].contamination_level = 0;
@@ -94,7 +94,7 @@ void *citizen(void *plug)
             printf("jour : %d\n", day);
             printf("citoyen : %d\n", current_citizen_index);
 		}
-
+        
         pthread_cond_signal(&thread_signal);
 		pthread_mutex_unlock(&thread_mutex);
         usleep(1000);
@@ -108,21 +108,26 @@ void *server(void *plug)
 {
 	City *city = (City*)plug;
 
-    pthread_mutex_lock(&thread_mutex);
+    pthread_mutex_lock(&thread_mutex); 
     while(day < NUM_DAYS) {
-        if(CityContamination(city->terrain) == EXIT_FAILURE) {
-        printf("Erreur lors de l'évolution de la contamination des terrains");
-        return EXIT_FAILURE;
-        }   
         
-        building_type_display(city->terrain);
         day++;
         while (current_citizen_index < nb_citizens_left) {
             pthread_cond_wait(&thread_signal, &thread_mutex);
         }
         current_citizen_index = 0;
         
-        printf("Appuyez sur une touche pour passer au jour suivant");
+        if(city != NULL){
+            
+            if(CityContamination(city->terrain) == EXIT_FAILURE) {
+                printf("Erreur lors de l'évolution de la contamination des terrains \n");
+                return EXIT_FAILURE;
+            }
+        }
+        building_type_display(city->terrain);
+
+        
+        printf("Appuyez sur une touche pour passer au jour suivant \n");
         getchar();
         /**
          * Envoyer un SIGNAL vers le fils d'affichage ici pour afficher l'évolution à chaque tour
