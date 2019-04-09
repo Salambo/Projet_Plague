@@ -120,13 +120,29 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
 void building_type_display(Building city[CITY_SIZE][CITY_SIZE]){
     int length;
     int width;
-    
+    printf("Type de Buildings :\n");
     for(length=0; length<7; length++){
         for(width=0; width<7; width++){
-            printf("%i ", city[length][width].people_number);
+            printf("%d ", city[length][width].type);
         }
         printf("\n");
     }
+
+    printf("\n");
+}
+
+void building_population_display(Building city[CITY_SIZE][CITY_SIZE]){
+    int length;
+    int width;
+    printf("Type de population : \n");
+    for(length=0; length<7; length++){
+        for(width=0; width<7; width++){
+            printf("%d ", city[length][width].people_number);
+        }
+        printf("\n");
+    }
+
+    printf("\n");
 }
 
 int rand_between_a_b(int a, int b){

@@ -24,28 +24,50 @@ int generate_citizens(City* city) {
 
     pthread_create(&thread_server, &attr, server, (void*)city);
     for(int i = 0; i < NUM_CITIZENS; i++) {
-        city->citizens[i].type = i;
+        int is_placed = 0;
+
+        if(i < 6) { // 6 pompiers, dont 2 placés sur les casernes
+            city->citizens[i].type = FIREMAN;
+            if(i == 0) {
+                city->citizens[i].position_x = 0;
+                city->citizens[i].position_y = 6;
+                city->terrain[0][6].people_number++;
+                is_placed = 1;
+            } else if(i == 1) {
+                city->citizens[i].position_x = 6;
+                city->citizens[i].position_y = 0;
+                city->terrain[6][0].people_number++;
+                is_placed = 1;
+            }
+        } else if(i >= 6 && i < 10) {
+            city->citizens[i].type = DOCTOR;
+            if(i == 6) {
+                city->citizens[i].position_x = 3;
+                city->citizens[i].position_y = 3;
+                city->terrain[3][3].people_number++;
+                is_placed = 1;
+            }
+        } else if(i == 10 || i == 11) {
+            city->citizens[i].type = JOURNALIST;
+        } else {
+            city->citizens[i].type = CITIZEN;
+        }
+
         city->citizens[i].contamination_level = 0;
         city->citizens[i].malade = 0;
         city->citizens[i].dead = 0;
         city->citizens[i].to_remove = 0;
-        city->citizens[i].position_x = 2;
-        city->citizens[i].position_y = 3;
+        if(!is_placed) { // Les premiers citoyens sont les 6 pompiers, 4 médecins, 2 journalistes, total 12 citoyens spéciaux --- Les suivants sont des citoyens normaux
+            do { // Positionnement aléatoire
+                length = rand()%(6);
+                width = rand()%(6);
+            
+                citizens[i].position_x = length;
+                citizens[i].position_y = width;
+            } while(city->terrain[length][width].capacity_max <= city->terrain[length][width].people_number);
+            city->terrain[length][width].people_number++;
+        }
 
-        do{
-            length = rand()%(6);
-            width = rand()%(6);
-        
-            citizens[i].position_x = length;
-            citizens[i].position_y = width;
-        }while( city->terrain[length][width].capacity_max <= city->terrain[length][width].people_number );
-        city->terrain[length][width].people_number ++;
-
-        /*thread_plug plug; Matthieu, je ne te pensais pas comme ça....
-        plug.citizen = &citizens[i];
-        plug.city = city;*/
-
-        //pthread_create(&citizens[i].thread_id, &attr, citizen, (void*)thread_id_citizen[i]);
         pthread_create(&city->citizens[i].thread_id, &attr, citizen, (void*)city);
     }
 
@@ -69,12 +91,9 @@ void *citizen(void *plug)
 
 		if (current_citizen_index <= nb_citizens_left) {
 		    current_citizen_index++;
-            printf("thread n°%ld\n", pthread_self());
 		
             for(int i = 0; i < nb_citizens_left; i++) {
                 if(city->citizens[i].thread_id == pthread_self() && city->citizens[i].to_remove == 0) {
-                    i = nb_citizens_left;
-
                     if(rand_between_a_b(1, 101) > 60) {
                         //Citoyen bouge, gagne 2% de contamination de la case sur laquelle il va
                         int old_x = city->citizens[i].position_x;
@@ -123,8 +142,8 @@ void *citizen(void *plug)
                         // Mise à jour données de position du citoyen sur la grille
                         city->citizens[i].position_x = new_coord.x;
                         city->citizens[i].position_y = new_coord.y;
-                        city->terrain[old_x][old_y].people_number -= 1;
-                        city->terrain[new_coord.x][new_coord.y].people_number += 1;
+                        city->terrain[old_x][old_y].people_number--;
+                        city->terrain[new_coord.x][new_coord.y].people_number++;
                     } else {
                         //Citoyen reste sur place, gagne 5% de contamination
                         int x = city->citizens[i].position_x;
@@ -138,9 +157,7 @@ void *citizen(void *plug)
                 }
             }
 
-            //printf("thread id : %d\n", pthread_self());
-            printf("jour : %d\n", day);
-            printf("citoyen : %d\n", current_citizen_index);
+            //printf("citoyen : %d\n", current_citizen_index);
 		}
 
         pthread_cond_signal(&thread_signal);
@@ -163,7 +180,10 @@ void *server(void *plug)
             pthread_cond_wait(&thread_signal, &thread_mutex);
         }
         current_citizen_index = 0;
-        printf("Appuyez sur une touche pour passer au jour suivant");
+        printf("jour : %d\n", day);
+        building_population_display(city->terrain);
+        show_citoyen_contamination_level(city);
+        printf("Appuyez sur une touche pour passer au jour suivant\n");
         getchar();
         /**
          * Envoyer un SIGNAL vers le fils d'affichage ici pour afficher l'évolution à chaque tour
@@ -173,6 +193,17 @@ void *server(void *plug)
     }
 	pthread_exit(NULL);
 }
+
+int exist_medecin_on_case(City *shared_memory) {
+    // Rien pour le moment
+}
+
+void show_citoyen_contamination_level(City *shared_memory) {
+    for(int i = 0; i < nb_citizens_left; i++) {
+        printf("Contamination level %d : %lf\n", i, shared_memory->citizens[i].contamination_level);
+    }
+}
+
 
 Coord newPlacement(int x, int y) {
     Coord coord = {x, y};
