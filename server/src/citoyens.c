@@ -12,7 +12,7 @@ int generate_citizens(City* city) {
     //long thread_id_citizen[NUM_CITIZENS];
     pthread_attr_t attr;
     int length;
-    int width;
+    int height;
 
     /* Initialize mutex and condition variable objects */
 	pthread_mutex_init(&thread_mutex, NULL);
@@ -159,7 +159,7 @@ void *citizen(void *plug)
 
             //printf("citoyen : %d\n", current_citizen_index);
 		}
-
+        
         pthread_cond_signal(&thread_signal);
 		pthread_mutex_unlock(&thread_mutex);
         usleep(500);
@@ -173,8 +173,9 @@ void *server(void *plug)
 {
 	City *city = (City*)plug;
 
-    pthread_mutex_lock(&thread_mutex);
+    pthread_mutex_lock(&thread_mutex); 
     while(day < NUM_DAYS) {
+        
         day++;
         while (current_citizen_index < nb_citizens_left) {
             pthread_cond_wait(&thread_signal, &thread_mutex);
@@ -184,6 +185,18 @@ void *server(void *plug)
         building_population_display(city->terrain);
         show_citoyen_contamination_level(city);
         printf("Appuyez sur une touche pour passer au jour suivant\n");
+        
+        if(city != NULL){
+            
+            if(CityContamination(city->terrain) == EXIT_FAILURE) {
+                printf("Erreur lors de l'évolution de la contamination des terrains \n");
+                return EXIT_FAILURE;
+            }
+        }
+        building_type_display(city->terrain);
+
+        
+        printf("Appuyez sur une touche pour passer au jour suivant \n");
         getchar();
         /**
          * Envoyer un SIGNAL vers le fils d'affichage ici pour afficher l'évolution à chaque tour
