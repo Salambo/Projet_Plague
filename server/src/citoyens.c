@@ -182,6 +182,17 @@ void *server(void *plug)
         building_population_display(city->terrain);
         show_citoyen_contamination_level(city);
         printf("Appuyez sur une touche pour passer au jour suivant\n");
+        if(city != NULL){
+            
+            if(CityContamination(city->terrain) == EXIT_FAILURE) {
+                printf("Erreur lors de l'évolution de la contamination des terrains \n");
+                return EXIT_FAILURE;
+            }
+        }
+        building_type_display(city->terrain);
+
+        
+        printf("Appuyez sur une touche pour passer au jour suivant \n");
         getchar();
         /**
          * Envoyer un SIGNAL vers le fils d'affichage ici pour afficher l'évolution à chaque tour
