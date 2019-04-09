@@ -169,7 +169,6 @@ double CaseContamination(Building casse, double niv_contamination){
             double niv_conta_plus = niv_contamination - casse.contamination_level;
             niv_conta_plus = (rand_between_a_b(1,20)*0.01)* niv_conta_plus;
             casse.contamination_level = casse.contamination_level + niv_conta_plus;
-            printf("%lf\n", casse.contamination_level);
         }
     }
     return casse.contamination_level;

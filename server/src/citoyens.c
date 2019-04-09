@@ -57,8 +57,8 @@ int generate_citizens(City* city) {
         city->citizens[i].to_remove = 0;
         if(!is_placed) { // Les premiers citoyens sont les 6 pompiers, 4 médecins, 2 journalistes, total 12 citoyens spéciaux --- Les suivants sont des citoyens normaux
             do { // Positionnement aléatoire
-                length = rand()%(6);
-                width = rand()%(6);
+                length = rand_between_a_b(0, 8);
+                width = rand_between_a_b(0, 8);
             
                 city->citizens[i].position_x = length;
                 city->citizens[i].position_y = width;
@@ -99,15 +99,30 @@ void *citizen(void *plug)
 
                         Coord new_coord = newPlacement(old_x, old_y);
 
-
-                        // Le citoyen gagne 2% du niveau de contamination de la case
-                        if(city->citizens[i].contamination_level < 1) {
-                            city->citizens[i].contamination_level += city->terrain[new_coord.x][new_coord.y].contamination_level * 0.02;
-                        }
-
-                        // La case gagne 1% du niveau de contamination du citoyen qui arrive
-                        if(city->terrain[new_coord.x][new_coord.y].contamination_level < 1) {
-                            city->terrain[new_coord.x][new_coord.y].contamination_level += city->citizens[i].contamination_level * 0.01;
+                        if(city->terrain[new_coord.x][new_coord.y].type == FIRESTATION) { // Perte de contamination 20% par jour sur caserne de pompiers
+                            if(city->citizens[i].contamination_level - 0.20 < 0) {
+                                city->citizens[i].contamination_level = 0;
+                            } else {
+                                city->citizens[i].contamination_level -= 0.20;
+                            }
+                        } else if (city->terrain[new_coord.x][new_coord.y].type == HOSPITAL) { // Hôpital donc 1/4 de réparcution de la contamination
+                            if(city->terrain[new_coord.x][new_coord.y].contamination_level < 1) {
+                                city->terrain[new_coord.x][new_coord.y].contamination_level += city->citizens[i].contamination_level * (0.01 * 0.25);
+                            }
+                        } else if(city->terrain[new_coord.x][new_coord.y].type == HOUSE) { // Maison
+                            if(city->terrain[new_coord.x][new_coord.y].contamination_level < 1) {
+                                city->terrain[new_coord.x][new_coord.y].contamination_level += city->citizens[i].contamination_level * 0.01;
+                            }
+                            if(city->citizens[i].contamination_level < 1) {
+                                city->citizens[i].contamination_level += city->terrain[new_coord.x][new_coord.y].contamination_level * 0.02;
+                            }
+                        } else { // Terrain vague et maison : Le citoyen gagne 2% du niveau de contamination de la case, la case gagne 1% du niveau de contamination du citoyen qui arrive
+                            if(city->terrain[new_coord.x][new_coord.y].contamination_level < 1) {
+                                city->terrain[new_coord.x][new_coord.y].contamination_level += city->citizens[i].contamination_level * 0.01;
+                            }
+                            if(city->citizens[i].contamination_level < 1) {
+                                city->citizens[i].contamination_level += city->terrain[new_coord.x][new_coord.y].contamination_level * 0.02;
+                            }
                         }
 
                         if(city->citizens[i].malade == 0) { // Si non malade, gérer proba de tomber malade
@@ -132,7 +147,7 @@ void *citizen(void *plug)
                                 }
                             }
                         } else { // Jours de maladie avec probabilité de décéder
-                            if(rand_between_a_b(1, 101) < (city->citizens[i].malade - 5) * 0.05) { // Le citoyen meurt de la maladie
+                            if(rand_between_a_b(1, 101) < (city->citizens[i].malade - 5) * (0.05 * exist_medecin_on_case())) { // Le citoyen meurt de la maladie
                                 city->citizens[i].dead = 1;
                             }
                         }
@@ -187,7 +202,7 @@ void *server(void *plug)
                 return EXIT_FAILURE;
             }
         }
-        building_conta_display(city->terrain);
+        //building_conta_display(city->terrain);
 
         
         printf("Appuyez sur une touche pour passer au jour suivant \n");
@@ -201,8 +216,15 @@ void *server(void *plug)
 	pthread_exit(NULL);
 }
 
-int exist_medecin_on_case(City *shared_memory) {
-    // Rien pour le moment
+int exist_medecin_on_case(City *shared_memory, Citizen citizen) {
+    for(int i = 0; i < nb_citizens_left; i++) {
+        if(shared_memory->citizens[i].position_x == citizen.position_x &&
+            shared_memory->citizens[i].position_y == citizen.position_y &&
+            shared_memory->citizens[i].type == DOCTOR) {
+
+            return EXIT_SUCCESS;
+        }
+    }
 }
 
 void show_citoyen_contamination_level(City *shared_memory) {
@@ -218,6 +240,7 @@ Coord newPlacement(int x, int y) {
 
     while(!found) {
         int valeur = rand_between_a_b(1, 9);
+        printf("aléatoir : %d\n", valeur);
         switch(valeur) {
             case 1: //Haut-Gauche
                 if(x > 0 && y > 0) {
