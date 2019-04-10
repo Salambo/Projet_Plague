@@ -70,7 +70,6 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
             city[length][width].type= 0;
             city[length][width].contamination_level= 0;
             city[length][width].people_number = 0;
-            city[length][width].dead_body_number = 0;
         }
     }
 

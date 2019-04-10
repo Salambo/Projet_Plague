@@ -32,13 +32,14 @@ typedef struct Citizen {
     int malade;
     int dead;
     int to_remove;
+    int equipment;
+    int countdown_before_to_enter_hospital;
     pthread_t thread_id;
 } Citizen;
 
 typedef struct Building{
     int type;
     int people_number;
-    int dead_body_number;
     int capacity_max; /*utile?*/
     double contamination_level;
 } Building;
@@ -72,6 +73,7 @@ int manage_parent(int pipe[], City *shared_memory, pid_t pid_child);
 void manage_child(int pipe[], City *shared_memory);
 
 int CityInitialization(Building[CITY_SIZE][CITY_SIZE]);
+int CityContamination(Building[CITY_SIZE][CITY_SIZE]);
 void building_type_display(Building[CITY_SIZE][CITY_SIZE]);
 void building_population_display(Building city[CITY_SIZE][CITY_SIZE]);
 int rand_between_a_b(int a, int b);
