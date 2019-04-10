@@ -24,6 +24,9 @@
 #define FIRESTATION     2
 #define HOSPITAL        3
 
+#define TRUE            1
+#define FALSE           0
+
 typedef struct Citizen {
     int type;
     double contamination_level;
@@ -78,3 +81,4 @@ void building_type_display(Building[CITY_SIZE][CITY_SIZE]);
 void building_population_display(Building city[CITY_SIZE][CITY_SIZE]);
 int rand_between_a_b(int a, int b);
 Coord newPlacement(int x, int y);
+void building_conta_display(Building[CITY_SIZE][CITY_SIZE]);
