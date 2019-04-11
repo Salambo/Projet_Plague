@@ -158,6 +158,30 @@ void building_population_display(Building city[CITY_SIZE][CITY_SIZE]){
     printf("\n");
 }
 
+void show_dead_people(Citizen citizens[NUM_CITIZENS]) {
+    int nb_dead = 0;
+
+    for(int i = 0; i < NUM_CITIZENS; i++) {
+        if(citizens[i].dead == 1) {
+            nb_dead++;
+        }
+    }
+
+    printf("Nombre de citoyens morts : %d\n", nb_dead);
+}
+
+void show_burn_people(Citizen citizens[NUM_CITIZENS]) {
+    int nb_burn = 0;
+
+    for(int i = 0; i < NUM_CITIZENS; i++) {
+        if(citizens[i].to_remove == 1) {
+            nb_burn++;
+        }
+    }
+
+    printf("Nombre de citoyens brûlés : %d\n", nb_burn);
+}
+
 int rand_between_a_b(int a, int b){
     return rand()%(b-a) +a;
 }

@@ -7,3 +7,9 @@ personne ne meurt, à déverminer
 Gérer pour ne pas soigner les morts, etc...
 
 trier le tableau des citoyens lorsqu'il y en a un qui meurt pour accélérer son parcours
+
+Décrémenter les charges de décomtamination du pompier lorsque c'est utilisé
+
+if(random < proba_death) {
+    city->citizens[i].dead = 1; // Fait planter le programme pour une raison inconnue
+}

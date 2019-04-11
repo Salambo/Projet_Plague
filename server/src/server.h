@@ -32,8 +32,8 @@ typedef struct Citizen {
     double contamination_level;
     int position_x;
     int position_y;
-    int malade;
     int dead;
+    int malade;
     int to_remove;
     int equipment;
     int countdown_before_to_enter_hospital;
@@ -82,3 +82,5 @@ void building_population_display(Building city[CITY_SIZE][CITY_SIZE]);
 int rand_between_a_b(int a, int b);
 Coord newPlacement(int x, int y);
 void building_conta_display(Building[CITY_SIZE][CITY_SIZE]);
+void show_dead_people(Citizen citizens[NUM_CITIZENS]);
+void show_burn_people(Citizen citizens[NUM_CITIZENS]);
