@@ -340,7 +340,10 @@ int journalist_action(City *shared_memory, Citizen fireman) {
 
 void *server(void *plug)
 {
-	City *city = (City*)plug;
+	mqd_t mq;
+    int priority; 
+
+    City *city = (City*)plug;
 
     pthread_mutex_lock(&thread_mutex);
     while(day < NUM_DAYS) {
@@ -360,7 +363,7 @@ void *server(void *plug)
                 return EXIT_FAILURE;
             }
         }
-        //building_conta_display(city->terrain);
+        building_conta_display(city->terrain);
 
         
         printf("Appuyez sur une touche pour passer au jour suivant\n");

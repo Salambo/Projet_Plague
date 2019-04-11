@@ -87,8 +87,8 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
     
     for(var=0; var<3; var++){
         do{
-            i=rand()%(6);
-            j=rand()%(6);
+            i=rand()%(7);
+            j=rand()%(7);
         }while(city[i][j].type!=0);
         double niv_contamination = rand()%(20);
         niv_contamination = (niv_contamination+20)/100;
