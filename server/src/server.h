@@ -50,7 +50,6 @@ typedef struct Building{
 typedef struct City {
     Building terrain[CITY_SIZE][CITY_SIZE];
     Citizen citizens[NUM_CITIZENS];
-    mqd_t mq;
 } City;
 
 typedef struct thread_plug {
