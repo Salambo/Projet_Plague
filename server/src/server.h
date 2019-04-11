@@ -9,6 +9,8 @@
 #include <fcntl.h>
 #include <time.h>
 #include <signal.h>
+#include <string.h>
+#include <mqueue.h>
 
 #define NUM_CITIZENS	25+12 // 25 Citoyens normaux + 12 citoyens spéciaux
 #define NUM_DAYS		100

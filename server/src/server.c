@@ -88,8 +88,8 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
     
     for(var=0; var<3; var++){
         do{
-            i=rand()%(6);
-            j=rand()%(6);
+            i=rand()%(7);
+            j=rand()%(7);
         }while(city[i][j].type!=0);
         double niv_contamination = rand()%(20);
         niv_contamination = (niv_contamination+20)/100;
@@ -169,7 +169,6 @@ double CaseContamination(Building casse, double niv_contamination){
             double niv_conta_plus = niv_contamination - casse.contamination_level;
             niv_conta_plus = (rand_between_a_b(1,20)*0.01)* niv_conta_plus;
             casse.contamination_level = casse.contamination_level + niv_conta_plus;
-            printf("%lf\n", casse.contamination_level);
         }
     }
     return casse.contamination_level;

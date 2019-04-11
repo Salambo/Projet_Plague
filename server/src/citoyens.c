@@ -167,7 +167,10 @@ void *citizen(void *plug)
 
 void *server(void *plug)
 {
-	City *city = (City*)plug;
+	mqd_t mq;
+    int priority; 
+
+    City *city = (City*)plug;
 
     pthread_mutex_lock(&thread_mutex);
     while(day < NUM_DAYS) {
@@ -188,7 +191,12 @@ void *server(void *plug)
             }
         }
         building_conta_display(city->terrain);
-
+        /*Priorité 10 nombre morts
+                    5 contamination_ville
+                    2 nb_citoyens contaminés 
+                    1 infos_journaliste*/
+        mq = mq_open("/cable_foxnews", O_WRONLY);
+        mq_send(mq, "12", strlen("12"), 10);
         
         printf("Appuyez sur une touche pour passer au jour suivant \n");
         getchar();
