@@ -13,3 +13,5 @@ Décrémenter les charges de décomtamination du pompier lorsque c'est utilisé
 if(random < proba_death) {
     city->citizens[i].dead = 1; // Fait planter le programme pour une raison inconnue
 }
+
+Implémenter les limites de personnes sur les terrains

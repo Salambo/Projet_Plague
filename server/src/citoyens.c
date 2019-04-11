@@ -330,7 +330,7 @@ int doctor_action(City *shared_memory, Citizen *doctor) {
             shared_memory->citizens[index_sickest_citizen].malade = 0;
         }
 
-        //doctor->equipment--;
+        doctor->equipment--;
     }
 }
 
@@ -372,7 +372,6 @@ void *server(void *plug)
         pthread_mutex_unlock(&thread_mutex);
     }
 
-    printf("Il reste %d citoyens\n", nb_citizens_left);
     show_dead_people(city->citizens);
     show_burn_people(city->citizens);
     show_sick_people(city->citizens);
