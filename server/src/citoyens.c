@@ -90,6 +90,7 @@ int generate_citizens(City* city) {
 void *citizen(void *plug)
 {
 	City *city = (City*)plug;
+    pthread_t self = pthread_self();
 
 	while(day < NUM_DAYS) {
 		pthread_mutex_lock(&thread_mutex);
@@ -97,15 +98,12 @@ void *citizen(void *plug)
 		if (current_citizen_index <= nb_citizens_left) {
 		
             for(int i = 0; i < nb_citizens_left; i++) {
-                if(city->citizens[i].thread_id == pthread_self() && city->citizens[i].to_remove == 1) { // Citoyens brulé, suppression du thread
-                    i = nb_citizens_left;
-                    nb_citizens_left--;
-                    city->terrain[city->citizens[i].position_x][city->citizens[i].position_y].people_number--;
-                    pthread_cond_signal(&thread_signal);
+                if(city->citizens[i].thread_id == self && city->citizens[i].to_remove) { // Citoyens brulé, suppression du thread
+                    /*pthread_cond_signal(&thread_signal);
 		            pthread_mutex_unlock(&thread_mutex);
-                    /*pthread_exit(NULL);*/
-                    pthread_cancel(city->citizens[i].thread_id);
-                } else if(city->citizens[i].thread_id == pthread_self() && city->citizens[i].to_remove == 0) {
+                    pthread_cancel(city->citizens[i].thread_id);*/
+                    current_citizen_index++;
+                } else if(city->citizens[i].thread_id == self && !city->citizens[i].to_remove) {
                     double contamination_from_citizen;
                     double contamination_from_terrain;
                     int old_x = city->citizens[i].position_x;
@@ -194,7 +192,7 @@ void *citizen(void *plug)
                             city->citizens[i].malade++;
                             for(int j = 0; j < nb_citizens_left; j++) { // 10% de probabilité de contaminer les autres gens sur la même case et 1% de probabilité de contaminer les gens sur les terrains vagues autour si le terrain actuelle est un terrain vague
                                 if(city->citizens[j].position_x == new_coord.x && city->citizens[j].position_y < new_coord.y &&
-                                    city->citizens[j].thread_id != pthread_self() &&
+                                    city->citizens[j].thread_id != self &&
                                     city->citizens[j].dead == 0) { // Le citoyen est sur la même case, n'est pas mort et n'est pas le citoyen actuel
                                     if(rand_between_a_b(1, 101) < 1) {
                                         if(city->citizens[j].type == FIREMAN) { // Si pompier, alors 70% de chance de ne pas le rendre malade
@@ -243,7 +241,7 @@ void *citizen(void *plug)
         pthread_cond_signal(&thread_signal);
 		pthread_mutex_unlock(&thread_mutex);
         usleep(500);
-        while(current_citizen_index >= nb_citizens_left);
+        //while(current_citizen_index >= nb_citizens_left);
 	}
 
 	pthread_exit(NULL);
@@ -254,8 +252,10 @@ int fireman_action(City *shared_memory, Citizen *fireman) {
         if(shared_memory->citizens[i].position_x == fireman->position_x &&
             shared_memory->citizens[i].position_y == fireman->position_y) {
 
-            if(shared_memory->citizens[i].dead == 1) { // Brûle les morts
+            if(shared_memory->citizens[i].dead == 1 && shared_memory->citizens[i].to_remove == 0) { // Brûle les morts
                 shared_memory->citizens[i].to_remove = 1;
+                shared_memory->terrain[fireman->position_x][fireman->position_y].people_number--;
+                //nb_citizens_left--;
             } else if(shared_memory->citizens[i].contamination_level > 0 &&
                         fireman->equipment > 1 &&
                         shared_memory->citizens[i].thread_id != pthread_self()) { // Décontamine à hauteur de 20% de chaque citoyen présent sur la case, si ce n'est pas lui-même
@@ -375,15 +375,8 @@ void *server(void *plug)
     printf("Il reste %d citoyens\n", nb_citizens_left);
     show_dead_people(city->citizens);
     show_burn_people(city->citizens);
-
-    int nb_citizens_sick = 0;
-    for(int i = 0; i < nb_citizens_left; i++) {
-        if(city->citizens[i].malade > 0) {
-            nb_citizens_sick++;
-        }
-    }
-
-    printf("Nombre de citoyens malades : %d\n", nb_citizens_sick);
+    show_sick_people(city->citizens);
+    show_survivors(city->citizens);
 
 	pthread_exit(NULL);
 }

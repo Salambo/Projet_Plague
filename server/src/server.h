@@ -84,3 +84,5 @@ Coord newPlacement(int x, int y);
 void building_conta_display(Building[CITY_SIZE][CITY_SIZE]);
 void show_dead_people(Citizen citizens[NUM_CITIZENS]);
 void show_burn_people(Citizen citizens[NUM_CITIZENS]);
+void show_survivors(Citizen citizens[NUM_CITIZENS]);
+void show_sick_people(Citizen citizens[NUM_CITIZENS]);

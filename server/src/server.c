@@ -158,11 +158,33 @@ void building_population_display(Building city[CITY_SIZE][CITY_SIZE]){
     printf("\n");
 }
 
+void show_survivors(Citizen citizens[NUM_CITIZENS]) {
+    int survivors = 0;
+    for(int i = 0; i < NUM_CITIZENS; i++) {
+        if(citizens[i].malade == 0 && !citizens[i].dead && !citizens[i].to_remove) {
+            survivors++;
+        }
+    }
+
+    printf("Nombre de survivants non malades : %d\n", survivors);
+}
+
+void show_sick_people(Citizen citizens[NUM_CITIZENS]) {
+    int nb_citizens_sick = 0;
+    for(int i = 0; i < NUM_CITIZENS; i++) {
+        if(citizens[i].malade > 0 && !citizens[i].dead) {
+            nb_citizens_sick++;
+        }
+    }
+
+    printf("Nombre de citoyens malades : %d\n", nb_citizens_sick);
+}
+
 void show_dead_people(Citizen citizens[NUM_CITIZENS]) {
     int nb_dead = 0;
 
     for(int i = 0; i < NUM_CITIZENS; i++) {
-        if(citizens[i].dead == 1) {
+        if(citizens[i].dead == 1 && !citizens[i].to_remove) {
             nb_dead++;
         }
     }
