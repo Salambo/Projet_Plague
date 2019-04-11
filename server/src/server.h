@@ -29,11 +29,15 @@
 #define TRUE            1
 #define FALSE           0
 
+typedef struct Coord {
+    int x;
+    int y;
+} Coord;
+
 typedef struct Citizen {
     int type;
     double contamination_level;
-    int position_x;
-    int position_y;
+    Coord position;
     int dead;
     int malade;
     int to_remove;
@@ -53,16 +57,6 @@ typedef struct City {
     Building terrain[CITY_SIZE][CITY_SIZE];
     Citizen citizens[NUM_CITIZENS];
 } City;
-
-typedef struct thread_plug {
-    long *thread_id_citizen;
-    City* shared_memory;
-} thread_plug;
-
-typedef struct Coord {
-    int x;
-    int y;
-} Coord;
 
 /**
  * Génération des citoyens et placement sur la grille

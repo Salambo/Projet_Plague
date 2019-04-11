@@ -65,8 +65,8 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
             3 = Hopital 12
     */
 
-    for(length=0; length<7; length++){
-        for(width=0; width<7; width++){
+    for(length=0; length<CITY_SIZE; length++){
+        for(width=0; width<CITY_SIZE; width++){
             city[length][width].type= 0;
             city[length][width].contamination_level= 0;
             city[length][width].people_number = 0;
@@ -96,8 +96,8 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
 
     }
 
-    for(length=0; length<7; length++){
-        for(width=0; width<7; width++){
+    for(length=0; length<CITY_SIZE; length++){
+        for(width=0; width<CITY_SIZE; width++){
             if(city[length][width].type == 0){
                 city[length][width].capacity_max = 16;
             }
@@ -133,7 +133,7 @@ void building_type_display(Building city[CITY_SIZE][CITY_SIZE]){
 void building_conta_display(Building city[CITY_SIZE][CITY_SIZE]){
     int length;
     int width;
-    printf("Type de Buildings :\n");
+    printf("Contamination terrains :\n");
     for(length=0; length<7; length++){
         for(width=0; width<7; width++){
             printf("%lf ", city[length][width].contamination_level);

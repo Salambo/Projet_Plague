@@ -27,14 +27,14 @@ int generate_citizens(City* city) {
         if(i < 6) { // 6 pompiers, dont 2 placés sur les casernes
             city->citizens[i].type = FIREMAN;
             if(i == 0) {
-                city->citizens[i].position_x = 0;
-                city->citizens[i].position_y = 6;
+                city->citizens[i].position.x = 0;
+                city->citizens[i].position.y = 6;
                 city->terrain[0][6].people_number++;
                 city->citizens[i].equipment = 10; // Pulvérisateur
                 is_placed = 1;
             } else if(i == 1) {
-                city->citizens[i].position_x = 6;
-                city->citizens[i].position_y = 0;
+                city->citizens[i].position.x = 6;
+                city->citizens[i].position.y = 0;
                 city->terrain[6][0].people_number++;
                 city->citizens[i].equipment = 10; // Pulvérisateur
                 is_placed = 1;
@@ -44,8 +44,8 @@ int generate_citizens(City* city) {
         } else if(i >= 6 && i < 10) {
             city->citizens[i].type = DOCTOR;
             if(i == 6) {
-                city->citizens[i].position_x = 3;
-                city->citizens[i].position_y = 3;
+                city->citizens[i].position.x = 3;
+                city->citizens[i].position.y = 3;
                 city->terrain[3][3].people_number++;
                 city->citizens[i].equipment = 10; // Pochettes de soin
                 is_placed = 1;
@@ -67,8 +67,8 @@ int generate_citizens(City* city) {
                 length = rand_between_a_b(0, 8);
                 width = rand_between_a_b(0, 8);
             
-                city->citizens[i].position_x = length;
-                city->citizens[i].position_y = width;
+                city->citizens[i].position.x = length;
+                city->citizens[i].position.y = width;
             } while(city->terrain[length][width].capacity_max <= city->terrain[length][width].people_number);
             city->terrain[length][width].people_number++;
         }
@@ -106,8 +106,8 @@ void *citizen(void *plug)
                 } else if(city->citizens[i].thread_id == self && !city->citizens[i].to_remove) {
                     double contamination_from_citizen;
                     double contamination_from_terrain;
-                    int old_x = city->citizens[i].position_x;
-                    int old_y = city->citizens[i].position_y;
+                    int old_x = city->citizens[i].position.x;
+                    int old_y = city->citizens[i].position.y;
                     Coord new_coord;
 
                     current_citizen_index++;
@@ -119,8 +119,8 @@ void *citizen(void *plug)
                         new_coord = newPlacement(old_x, old_y);
 
                         // Mise à jour données de position du citoyen sur la grille
-                        city->citizens[i].position_x = new_coord.x;
-                        city->citizens[i].position_y = new_coord.y;
+                        city->citizens[i].position.x = new_coord.x;
+                        city->citizens[i].position.y = new_coord.y;
                         city->terrain[old_x][old_y].people_number--;
                         city->terrain[new_coord.x][new_coord.y].people_number++;
                     } else { // 60% de chance que le citoyen reste sur place
@@ -191,7 +191,7 @@ void *citizen(void *plug)
                         } else if(city->citizens[i].malade <= 5) { // Jours de maladie sans probabilité de décéder
                             city->citizens[i].malade++;
                             for(int j = 0; j < nb_citizens_left; j++) { // 10% de probabilité de contaminer les autres gens sur la même case et 1% de probabilité de contaminer les gens sur les terrains vagues autour si le terrain actuelle est un terrain vague
-                                if(city->citizens[j].position_x == new_coord.x && city->citizens[j].position_y < new_coord.y &&
+                                if(city->citizens[j].position.x == new_coord.x && city->citizens[j].position.y < new_coord.y &&
                                     city->citizens[j].thread_id != self &&
                                     city->citizens[j].dead == 0) { // Le citoyen est sur la même case, n'est pas mort et n'est pas le citoyen actuel
                                     if(rand_between_a_b(1, 101) < 1) {
@@ -203,8 +203,8 @@ void *citizen(void *plug)
                                             city->citizens[j].malade = 1;
                                         }
                                     }
-                                } else if(city->terrain[new_coord.x][new_coord.y].type == WASTELAND &&city->citizens[j].position_x > new_coord.x - 1 && city->citizens[j].position_x < new_coord.x + 1 &&
-                                        city->citizens[j].position_y > new_coord.y - 1 && city->citizens[j].position_y < new_coord.y + 1 &&
+                                } else if(city->terrain[new_coord.x][new_coord.y].type == WASTELAND &&city->citizens[j].position.x > new_coord.x - 1 && city->citizens[j].position.x < new_coord.x + 1 &&
+                                        city->citizens[j].position.y > new_coord.y - 1 && city->citizens[j].position.y < new_coord.y + 1 &&
                                         city->citizens[j].dead == 0) { // Le terrain actuel est un terrain vague, le citoyen est auteur et sur un terrain vague et n'est pas mort
                                     if(rand_between_a_b(1, 101) < 11) { 
                                         city->citizens[j].malade = 1;
@@ -249,12 +249,12 @@ void *citizen(void *plug)
 
 int fireman_action(City *shared_memory, Citizen *fireman) {
     for(int i = 0; i < nb_citizens_left; i++) {
-        if(shared_memory->citizens[i].position_x == fireman->position_x &&
-            shared_memory->citizens[i].position_y == fireman->position_y) {
+        if(shared_memory->citizens[i].position.x == fireman->position.x &&
+            shared_memory->citizens[i].position.y == fireman->position.y) {
 
             if(shared_memory->citizens[i].dead == 1 && shared_memory->citizens[i].to_remove == 0) { // Brûle les morts
                 shared_memory->citizens[i].to_remove = 1;
-                shared_memory->terrain[fireman->position_x][fireman->position_y].people_number--;
+                shared_memory->terrain[fireman->position.x][fireman->position.y].people_number--;
                 //nb_citizens_left--;
             } else if(shared_memory->citizens[i].contamination_level > 0 &&
                         fireman->equipment > 1 &&
@@ -272,10 +272,10 @@ int fireman_action(City *shared_memory, Citizen *fireman) {
     }
 
     if(fireman->equipment > 1) { // Décontamination du terrain sur lequel le pompier est
-        if(shared_memory->terrain[fireman->position_x][fireman->position_x].contamination_level - 0.20 < 0) {
-            shared_memory->terrain[fireman->position_x][fireman->position_x].contamination_level = 0;
+        if(shared_memory->terrain[fireman->position.x][fireman->position.x].contamination_level - 0.20 < 0) {
+            shared_memory->terrain[fireman->position.x][fireman->position.x].contamination_level = 0;
         } else {
-            shared_memory->terrain[fireman->position_x][fireman->position_x].contamination_level -= 0.20;
+            shared_memory->terrain[fireman->position.x][fireman->position.x].contamination_level -= 0.20;
         }
 
         fireman->equipment--;
@@ -285,7 +285,7 @@ int fireman_action(City *shared_memory, Citizen *fireman) {
 int doctor_action(City *shared_memory, Citizen *doctor) {
     int index_sickest_citizen  = -1;
 
-    if(shared_memory->terrain[doctor->position_x][doctor->position_y].type == HOSPITAL) { // Si dans hôpital, pas besoin d'utiliser pochette de soin
+    if(shared_memory->terrain[doctor->position.x][doctor->position.y].type == HOSPITAL) { // Si dans hôpital, pas besoin d'utiliser pochette de soin
         if(doctor->malade > 0 && doctor->malade < 10) {
             for(int i = 0; i < nb_citizens_left; i++) {
                 if(shared_memory->citizens[i].thread_id == pthread_self()) {
@@ -295,8 +295,8 @@ int doctor_action(City *shared_memory, Citizen *doctor) {
             }
         } else {
             for(int i = 0; i < nb_citizens_left; i++) { // Soigne le patient le plus malade
-                if(shared_memory->citizens[i].position_x == doctor->position_x &&
-                    shared_memory->citizens[i].position_y == doctor->position_y &&
+                if(shared_memory->citizens[i].position.x == doctor->position.x &&
+                    shared_memory->citizens[i].position.y == doctor->position.y &&
                     shared_memory->citizens[i].thread_id != pthread_self()) {
                     
                     if(index_sickest_citizen == -1 || shared_memory->citizens[index_sickest_citizen].malade < shared_memory->citizens[i].malade) { // Récupérer le citoyen le plus malade de la case
@@ -317,8 +317,8 @@ int doctor_action(City *shared_memory, Citizen *doctor) {
             }
         } else {
             for(int i = 0; i < nb_citizens_left; i++) { // Soigne le patient le plus malade
-                if(shared_memory->citizens[i].position_x == doctor->position_x &&
-                    shared_memory->citizens[i].position_y == doctor->position_y &&
+                if(shared_memory->citizens[i].position.x == doctor->position.x &&
+                    shared_memory->citizens[i].position.y == doctor->position.y &&
                     shared_memory->citizens[i].thread_id != pthread_self()) {
                     
                     if(index_sickest_citizen == -1 || shared_memory->citizens[index_sickest_citizen].malade < shared_memory->citizens[i].malade) { // Récupérer le citoyen le plus malade de la case
@@ -340,9 +340,6 @@ int journalist_action(City *shared_memory, Citizen fireman) {
 
 void *server(void *plug)
 {
-	mqd_t mq;
-    int priority; 
-
     City *city = (City*)plug;
 
     pthread_mutex_lock(&thread_mutex);
@@ -355,7 +352,7 @@ void *server(void *plug)
         printf("jour : %d\n", day);
         building_population_display(city->terrain);
         //building_conta_display(city->terrain);
-        //show_citoyen_contamination_level(city);
+        
         if(city != NULL){
             
             if(CityContamination(city->terrain) == EXIT_FAILURE) {
@@ -363,30 +360,30 @@ void *server(void *plug)
                 return EXIT_FAILURE;
             }
         }
-        building_conta_display(city->terrain);
-
         
         printf("Appuyez sur une touche pour passer au jour suivant\n");
         getchar();
         /**
          * Envoyer un SIGNAL vers le fils d'affichage ici pour afficher l'évolution à chaque tour
          */
-
+        
         pthread_mutex_unlock(&thread_mutex);
     }
 
+    /*pthread_mutex_lock(&thread_mutex);
     show_dead_people(city->citizens);
     show_burn_people(city->citizens);
     show_sick_people(city->citizens);
     show_survivors(city->citizens);
+    pthread_mutex_unlock(&thread_mutex);*/
 
 	pthread_exit(NULL);
 }
 
 int exist_medecin_on_case(City *shared_memory, Citizen citizen) {
     for(int i = 0; i < nb_citizens_left; i++) {
-        if(shared_memory->citizens[i].position_x == citizen.position_x &&
-            shared_memory->citizens[i].position_y == citizen.position_y &&
+        if(shared_memory->citizens[i].position.x == citizen.position.x &&
+            shared_memory->citizens[i].position.y == citizen.position.y &&
             shared_memory->citizens[i].type == DOCTOR &&
             shared_memory->citizens[i].dead == 0) {
 
@@ -399,8 +396,8 @@ int exist_medecin_on_case(City *shared_memory, Citizen citizen) {
 
 int exist_fireman_on_case(City *shared_memory, Citizen citizen) {
     for(int i = 0; i < nb_citizens_left; i++) {
-        if(shared_memory->citizens[i].position_x == citizen.position_x &&
-            shared_memory->citizens[i].position_y == citizen.position_y &&
+        if(shared_memory->citizens[i].position.x == citizen.position.x &&
+            shared_memory->citizens[i].position.y == citizen.position.x &&
             shared_memory->citizens[i].type == FIREMAN) {
 
             return EXIT_SUCCESS;
