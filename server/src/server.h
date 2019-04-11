@@ -24,21 +24,25 @@
 #define FIRESTATION     2
 #define HOSPITAL        3
 
+#define TRUE            1
+#define FALSE           0
+
 typedef struct Citizen {
     int type;
     double contamination_level;
     int position_x;
     int position_y;
-    int malade;
     int dead;
+    int malade;
     int to_remove;
+    int equipment;
+    int countdown_before_to_enter_hospital;
     pthread_t thread_id;
 } Citizen;
 
 typedef struct Building{
     int type;
     int people_number;
-    int dead_body_number;
     int capacity_max; /*utile?*/
     double contamination_level;
 } Building;
@@ -72,7 +76,13 @@ int manage_parent(int pipe[], City *shared_memory, pid_t pid_child);
 void manage_child(int pipe[], City *shared_memory);
 
 int CityInitialization(Building[CITY_SIZE][CITY_SIZE]);
+int CityContamination(Building[CITY_SIZE][CITY_SIZE]);
 void building_type_display(Building[CITY_SIZE][CITY_SIZE]);
 void building_population_display(Building city[CITY_SIZE][CITY_SIZE]);
 int rand_between_a_b(int a, int b);
 Coord newPlacement(int x, int y);
+void building_conta_display(Building[CITY_SIZE][CITY_SIZE]);
+void show_dead_people(Citizen citizens[NUM_CITIZENS]);
+void show_burn_people(Citizen citizens[NUM_CITIZENS]);
+void show_survivors(Citizen citizens[NUM_CITIZENS]);
+void show_sick_people(Citizen citizens[NUM_CITIZENS]);

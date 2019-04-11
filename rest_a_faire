@@ -1,0 +1,17 @@
+check présence citoyens spéciaux pour autoriser l'entrée de citoyen normal sur case (par exmeple pompier dans caserne)
+
+ajouter arrêt prématuré en fonction du nombre de citoyen sur case pour 'fireman_action()' et 'doctor_action()' pour ne pas boucler pour rien si tous les citoyens de la case sont déjà trouvés
+
+personne ne meurt, à déverminer
+
+Gérer pour ne pas soigner les morts, etc...
+
+trier le tableau des citoyens lorsqu'il y en a un qui meurt pour accélérer son parcours
+
+Décrémenter les charges de décomtamination du pompier lorsque c'est utilisé
+
+if(random < proba_death) {
+    city->citizens[i].dead = 1; // Fait planter le programme pour une raison inconnue
+}
+
+Implémenter les limites de personnes sur les terrains
