@@ -2,17 +2,11 @@
 
 int manage_parent(int pipe[], City *shared_memory, pid_t pid_child){
     /*Initialisation ville*/
-    /*= MemoryAllocationCity(); /*création du tableau city[7][7]*/
-
     Building city[CITY_SIZE][CITY_SIZE];
     if(CityInitialization(shared_memory->terrain) == EXIT_FAILURE) {
         printf("Erreur lors de l'initialisation de la ville");
         return EXIT_FAILURE;
     }
-
-
-    /*test*/
-    /*building_type_display(city);*/
 
     building_type_display(shared_memory->terrain);
 
@@ -20,10 +14,6 @@ int manage_parent(int pipe[], City *shared_memory, pid_t pid_child){
     
 
     /*Création des tubes nommés/files de messages pour les clients/autres programmes*/
-
-
-    /*Placement des citoyens*/
-    printf("Fin initialisation. \n");
     
     usleep(500);
     kill(pid_child, SIGUSR1);
@@ -96,18 +86,15 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
 
     }
 
-    for(length=0; length<CITY_SIZE; length++){
-        for(width=0; width<CITY_SIZE; width++){
-            if(city[length][width].type == 0){
+    for(length=0; length<CITY_SIZE; length++) {
+        for(width=0; width<CITY_SIZE; width++) {
+            if(city[length][width].type == WASTELAND) {
                 city[length][width].capacity_max = 16;
-            }
-            else if(city[length][width].type == 1){
+            } else if(city[length][width].type == HOUSE) {
                 city[length][width].capacity_max = 6;
-            }
-            else if(city[length][width].type == 2){
+            } else if(city[length][width].type == FIRESTATION) {
                 city[length][width].capacity_max = 8;
-            }
-            else{
+            } else {
                 city[length][width].capacity_max = 12;
             }
         }

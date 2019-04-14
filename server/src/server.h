@@ -49,7 +49,7 @@ typedef struct Citizen {
 typedef struct Building{
     int type;
     int people_number;
-    int capacity_max; /*utile?*/
+    int capacity_max;
     double contamination_level;
 } Building;
 
@@ -76,9 +76,12 @@ int CityContamination(Building[CITY_SIZE][CITY_SIZE]);
 void building_type_display(Building[CITY_SIZE][CITY_SIZE]);
 void building_population_display(Building city[CITY_SIZE][CITY_SIZE]);
 int rand_between_a_b(int a, int b);
-Coord newPlacement(int x, int y);
+Coord newPlacement(Coord current, City *city, Citizen citizen);
 void building_conta_display(Building[CITY_SIZE][CITY_SIZE]);
 void show_dead_people(Citizen citizens[NUM_CITIZENS]);
 void show_burn_people(Citizen citizens[NUM_CITIZENS]);
 void show_survivors(Citizen citizens[NUM_CITIZENS]);
 void show_sick_people(Citizen citizens[NUM_CITIZENS]);
+
+int fireman_action(City *shared_memory, Citizen *fireman);
+int doctor_action(City *shared_memory, Citizen *doctor);
