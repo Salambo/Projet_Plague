@@ -6,15 +6,15 @@ SRCPATH=src/
 all: main clean
 
 test: citoyens.o server.o test.o
-	$(CC) -o $@ $^ -lpthread -lrt
+	@$(CC) -o $@ $^ -lpthread -lrt
 
-test.o: test.c $(SRCPATH)server.h
+test.o: test.c $(SRCPATH)test.c $(SRCPATH)server.h
 	@$(CC) -o $@ $< -c $(CPPFLAGS)
 
 
 
 main: citoyens.o server.o main.o
-	$(CC) -o $@ $^ -lpthread -lrt
+	@$(CC) -o $@ $^ -lpthread -lrt
 
 main.o: main.c $(SRCPATH)server.h
 	@$(CC) -o $@ $< -c $(CPPFLAGS)

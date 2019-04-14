@@ -83,6 +83,7 @@ void building_conta_display(Building[CITY_SIZE][CITY_SIZE]);
 int exist_medecin_on_case(City *shared_memory, Citizen citizen);
 int exist_fireman_on_case(City *shared_memory, Citizen citizen);
 
+int desease_management(City *city, Citizen *citizen);
 int fireman_action(City *shared_memory, Citizen *fireman);
 int doctor_action(City *shared_memory, Citizen *doctor);
 int journalist_action(City *shared_memory, Citizen journalist);

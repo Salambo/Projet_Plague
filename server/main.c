@@ -4,7 +4,6 @@ int main(){
     pid_t pid;
     int shmd;
     City *shared_memory;
-    FILE *file;
 
     /*Création de la mémoire partagée*/ 
     shmd = shm_open(SHARED_MEMORY, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR);

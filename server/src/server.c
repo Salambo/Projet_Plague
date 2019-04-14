@@ -29,12 +29,8 @@ int manage_child(City *shared_memory){
     sigaddset(&sigset, SIGUSR1);
     sigprocmask(SIG_SETMASK, &sigset, NULL);
 
+    /* Réception signal  */
     sigwaitinfo(&sigset, NULL);
-    printf("signal reçu\n");
-    
-    /*Initialisation threads - citoyen */
-
-    /*fin fils 1/processus 2*/
 
     generate_citizens(shared_memory);
 

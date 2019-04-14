@@ -2,20 +2,28 @@ CC=gcc
 CPPFLAGS=-Wall -Wextra
 SRCPATH=src/
 
-.PHONY: all clean
-all: main
+.PHONY: all
+all: main clean
 
-test: journalist.o
-	$(CC) -o plague-journalist-test.x $< test.c
+test: journalist.o test.o
+	@$(CC) -o $@ $^ -lpthread -lrt
 
-main: journalist.o
-	$(CC) -o plague-journalist.x $< main.c -lrt
+test.o: test.c $(SRCPATH)journalist.h
+	@$(CC) -o $@ $< -c $(CPPFLAGS)
 
-journalist.o: $(SRCPATH)*.c $(SRCPATH)*.h
-	$(CC) $(CPPFLAGS) $(SRCPATH)$*.c -c
+
+
+main: journalist.o main.o
+	@$(CC) -o $@ $^ -lpthread -lrt
+
+main.o: main.c $(SRCPATH)journalist.h
+	@$(CC) -o $@ $< -c $(CPPFLAGS)
+
+journalist.o: $(SRCPATH)journalist.c $(SRCPATH)journalist.h
+	@$(CC) -o $@ $< -c $(CPPFLAGS)
 
 clean:
-	rm -f *.o
+	@rm -f *.o
 
 reset: clean
-	rm -f *.x
+	@rm -f *.x test main

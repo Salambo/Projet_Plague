@@ -1,9 +1,0 @@
-ajouter arrêt prématuré en fonction du nombre de citoyen sur case pour 'fireman_action()' et 'doctor_action()' pour ne pas boucler pour rien si tous les citoyens de la case sont déjà trouvés
-
-Gérer pour ne pas soigner les morts, etc...
-
-trier le tableau des citoyens lorsqu'il y en a un qui meurt pour accélérer son parcours
-
--- Décrémenter les charges de décomtamination du pompier lorsque c'est utilisé
-
--- Implémenter les limites de personnes sur les terrains
