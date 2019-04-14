@@ -242,7 +242,6 @@ void *citizen(void *plug)
         pthread_cond_signal(&thread_signal);
 		pthread_mutex_unlock(&thread_mutex);
         usleep(500);
-        //while(current_citizen_index >= nb_citizens_left);
 	}
 
 	pthread_exit(NULL);
@@ -308,7 +307,8 @@ int doctor_action(City *shared_memory, Citizen *doctor) {
             for(int i = 0; i < nb_citizens_left; i++) { // Soigne le patient le plus malade
                 if(shared_memory->citizens[i].position.x == doctor->position.x &&
                     shared_memory->citizens[i].position.y == doctor->position.y &&
-                    shared_memory->citizens[i].thread_id != pthread_self()) {
+                    shared_memory->citizens[i].thread_id != pthread_self() &&
+                    !shared_memory->citizens[i].dead) {
                     
                     if(index_sickest_citizen == -1 || shared_memory->citizens[index_sickest_citizen].malade < shared_memory->citizens[i].malade) { // Récupérer le citoyen le plus malade de la case
                         index_sickest_citizen = i;
@@ -327,13 +327,20 @@ int doctor_action(City *shared_memory, Citizen *doctor) {
     return EXIT_SUCCESS;
 }
 
-int journalist_action(City *shared_memory, Citizen fireman) {
+int journalist_action(City *shared_memory, Citizen journalist) {
     return EXIT_SUCCESS;
 }
 
 void *server(void *plug)
 {
     City *city = (City*)plug;
+    FILE *file;
+
+    file = fopen("evolution.txt",  "w+");
+    if(file == NULL) {
+        perror("Impossible de créer el fichier 'evolution.txt'\n");
+        return;
+    }
 
     pthread_mutex_lock(&thread_mutex);
     while(day < NUM_DAYS) {
@@ -342,9 +349,8 @@ void *server(void *plug)
             pthread_cond_wait(&thread_signal, &thread_mutex);
         }
         current_citizen_index = 0;
+        printf("\e[1;1H\e[2J"); // Nettoyage du terminal
         printf("jour : %d\n", day);
-        building_population_display(city->terrain);
-        //building_conta_display(city->terrain);
         
         if(city != NULL){
             
@@ -353,8 +359,10 @@ void *server(void *plug)
                 return EXIT_FAILURE;
             }
         }
+
+        updateHistory(city, file);
         
-        printf("Appuyez sur une touche pour passer au jour suivant\n");
+        printf("\n\nAppuyez sur une touche pour passer au jour suivant\n");
         getchar();
         /**
          * Envoyer un SIGNAL vers le fils d'affichage ici pour afficher l'évolution à chaque tour
@@ -363,14 +371,8 @@ void *server(void *plug)
         pthread_mutex_unlock(&thread_mutex);
     }
 
-    pthread_mutex_lock(&thread_mutex);
-    show_dead_people(city->citizens);
-    show_burn_people(city->citizens);
-    show_sick_people(city->citizens);
-    show_survivors(city->citizens);
-    pthread_mutex_unlock(&thread_mutex);
-
-	pthread_exit(NULL);
+    fclose(file);
+	pthread_exit(EXIT_SUCCESS);
 }
 
 int exist_medecin_on_case(City *shared_memory, Citizen citizen) {
@@ -398,7 +400,7 @@ int exist_fireman_on_case(City *shared_memory, Citizen citizen) {
     }
 
     return EXIT_FAILURE;
-} 
+}
 
 void show_citoyen_contamination_level(City *shared_memory) {
     for(int i = 0; i < nb_citizens_left; i++) {
@@ -479,9 +481,9 @@ Coord newPlacement(Coord current, City *city, Citizen citizen) {
         if(found && city->terrain[coord.x][coord.y].people_number+1 > city->terrain[coord.x][coord.y].capacity_max) {
             found = FALSE;
         } else if(city->terrain[coord.x][coord.y].type == HOSPITAL && // Si Hôpital, seul citoyen malade, pompier et médecin peuvent rentrer
-                    (citizen.type == CITIZEN && citizen.malade > 0) ||
+                    (citizen.type == CITIZEN && citizen.malade > 0 ||
                     citizen.type == DOCTOR &&
-                    citizen.type == FIREMAN) { 
+                    citizen.type == FIREMAN)) {
             found = FALSE;
         } else if(city->terrain[coord.x][coord.y].type == FIRESTATION &&
                     citizen.type != FIREMAN &&

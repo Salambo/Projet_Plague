@@ -1,14 +1,11 @@
 #include "server.h"
 
-int manage_parent(int pipe[], City *shared_memory, pid_t pid_child){
+int manage_parent(City *shared_memory, pid_t pid_child){
     /*Initialisation ville*/
-    Building city[CITY_SIZE][CITY_SIZE];
     if(CityInitialization(shared_memory->terrain) == EXIT_FAILURE) {
-        printf("Erreur lors de l'initialisation de la ville");
+        perror("Erreur lors de l'initialisation de la ville\n");
         return EXIT_FAILURE;
     }
-
-    building_type_display(shared_memory->terrain);
 
     /*Initialisation des niveaux de contamination des terrains*/
     
@@ -20,12 +17,13 @@ int manage_parent(int pipe[], City *shared_memory, pid_t pid_child){
     printf("signal envoyé au fils %d \n", pid_child);
     wait(NULL); /*Doit attendre que son fils/processus 2 soit mort*/
 
-    printf("Le fils se termine\n");
+    printf("SIMULATION TERMINÉE\n");
 
     /*Simulation : 100 tours*/
+    return EXIT_SUCCESS;
 }
 
-void manage_child(int pipe[], City *shared_memory){
+int manage_child(City *shared_memory){
     sigset_t sigset;
     sigemptyset(&sigset);
     sigaddset(&sigset, SIGUSR1);
@@ -39,7 +37,8 @@ void manage_child(int pipe[], City *shared_memory){
     /*fin fils 1/processus 2*/
 
     generate_citizens(shared_memory);
-    printf("Je me termine en tant que fils\n");
+
+    return EXIT_SUCCESS;
 }
 
 int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
@@ -103,92 +102,57 @@ int CityInitialization(Building city[CITY_SIZE][CITY_SIZE]){
     return EXIT_SUCCESS;
 }
 
-void building_type_display(Building city[CITY_SIZE][CITY_SIZE]){
-    int length;
-    int width;
-    printf("Type de Buildings :\n");
-    for(length=0; length<7; length++){
-        for(width=0; width<7; width++){
-            printf("%d ", city[length][width].type);
+void updateHistory(City *shared_memory, FILE *file) {
+    if(shared_memory == NULL) {
+        perror("Mémoire partagée récuérée invalide\n");
+        return;
+    }
+
+    if(file == NULL) {
+        perror("Fichier invalide\n");
+        return;
+    }
+
+    double average_contamination = 0;
+    int i, j;
+    int nb_other_citizen = 0;
+    int nb_sick_citizen = 0;
+    int nb_dead_citizen = 0;
+    int nb_burn_citizen = 0;
+
+    printf("Nombre citoyens /  Niveau de contamination:\n");
+    for(i = 0; i < CITY_SIZE; i++) {
+        for(j = 0; j < CITY_SIZE; j++) {
+            average_contamination += shared_memory->terrain[i][j].contamination_level;
+            printf("%d %.2lf      ", shared_memory->terrain[i][j].people_number, shared_memory->terrain[i][j].contamination_level);
         }
         printf("\n");
     }
 
-    printf("\n");
-}
+    average_contamination /= CITY_SIZE*CITY_SIZE;
+    fprintf(file, "%lf ", average_contamination);
 
-void building_conta_display(Building city[CITY_SIZE][CITY_SIZE]){
-    int length;
-    int width;
-    printf("Contamination terrains :\n");
-    for(length=0; length<7; length++){
-        for(width=0; width<7; width++){
-            printf("%lf ", city[length][width].contamination_level);
-        }
-        printf("\n");
-    }
 
-    printf("\n");
-}
-
-void building_population_display(Building city[CITY_SIZE][CITY_SIZE]){
-    int length;
-    int width;
-    printf("Type de population : \n");
-    for(length=0; length<7; length++){
-        for(width=0; width<7; width++){
-            printf("%d ", city[length][width].people_number);
-        }
-        printf("\n");
-    }
-
-    printf("\n");
-}
-
-void show_survivors(Citizen citizens[NUM_CITIZENS]) {
-    int survivors = 0;
-    for(int i = 0; i < NUM_CITIZENS; i++) {
-        if(citizens[i].malade == 0 && !citizens[i].dead && !citizens[i].to_remove) {
-            survivors++;
+    for(i = 0; i < NUM_CITIZENS; i++) {
+        if(shared_memory->citizens[i].to_remove) {
+            nb_burn_citizen++;
+        } else if(shared_memory->citizens[i].dead) {
+            nb_dead_citizen++;
+        } else if(shared_memory->citizens[i].malade > 0) {
+            nb_sick_citizen++;
+        } else {
+            nb_other_citizen++;
         }
     }
 
-    printf("Nombre de survivants non malades : %d\n", survivors);
-}
+    printf("Population restant : \n\
+                -  Citoyens brûlés : %d\n\
+                - Citoyens morts : %d\n\
+                - Citoyens malades : %d\n\
+                - Citoyens en bonne santé : %d\n",
+                nb_burn_citizen, nb_dead_citizen, nb_sick_citizen, nb_other_citizen);
 
-void show_sick_people(Citizen citizens[NUM_CITIZENS]) {
-    int nb_citizens_sick = 0;
-    for(int i = 0; i < NUM_CITIZENS; i++) {
-        if(citizens[i].malade > 0 && !citizens[i].dead) {
-            nb_citizens_sick++;
-        }
-    }
-
-    printf("Nombre de citoyens malades : %d\n", nb_citizens_sick);
-}
-
-void show_dead_people(Citizen citizens[NUM_CITIZENS]) {
-    int nb_dead = 0;
-
-    for(int i = 0; i < NUM_CITIZENS; i++) {
-        if(citizens[i].dead == 1 && !citizens[i].to_remove) {
-            nb_dead++;
-        }
-    }
-
-    printf("Nombre de citoyens morts : %d\n", nb_dead);
-}
-
-void show_burn_people(Citizen citizens[NUM_CITIZENS]) {
-    int nb_burn = 0;
-
-    for(int i = 0; i < NUM_CITIZENS; i++) {
-        if(citizens[i].to_remove == 1) {
-            nb_burn++;
-        }
-    }
-
-    printf("Nombre de citoyens brûlés : %d\n", nb_burn);
+    fprintf(file, "%d %d %d %d\n", nb_other_citizen, nb_sick_citizen, nb_dead_citizen, nb_burn_citizen);
 }
 
 int rand_between_a_b(int a, int b){

@@ -1,8 +1,4 @@
-check présence citoyens spéciaux pour autoriser l'entrée de citoyen normal sur case (par exmeple pompier dans caserne)
-
 ajouter arrêt prématuré en fonction du nombre de citoyen sur case pour 'fireman_action()' et 'doctor_action()' pour ne pas boucler pour rien si tous les citoyens de la case sont déjà trouvés
-
-personne ne meurt, à déverminer
 
 Gérer pour ne pas soigner les morts, etc...
 

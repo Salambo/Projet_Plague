@@ -12,6 +12,8 @@
 #include <string.h>
 #include <mqueue.h>
 
+#define SHARED_MEMORY   "/city"
+
 #define NUM_CITIZENS	25+12 // 25 Citoyens normaux + 12 citoyens spéciaux
 #define NUM_DAYS		100
 #define CITY_SIZE       7
@@ -68,20 +70,21 @@ int generate_citizens(City* city);
 void *citizen(void *plug);
 void *server(void *plug);
 
-int manage_parent(int pipe[], City *shared_memory, pid_t pid_child);
-void manage_child(int pipe[], City *shared_memory);
+int manage_parent(City *shared_memory, pid_t pid_child);
+int manage_child(City *shared_memory);
 
 int CityInitialization(Building[CITY_SIZE][CITY_SIZE]);
 int CityContamination(Building[CITY_SIZE][CITY_SIZE]);
 void building_type_display(Building[CITY_SIZE][CITY_SIZE]);
-void building_population_display(Building city[CITY_SIZE][CITY_SIZE]);
 int rand_between_a_b(int a, int b);
 Coord newPlacement(Coord current, City *city, Citizen citizen);
 void building_conta_display(Building[CITY_SIZE][CITY_SIZE]);
-void show_dead_people(Citizen citizens[NUM_CITIZENS]);
-void show_burn_people(Citizen citizens[NUM_CITIZENS]);
-void show_survivors(Citizen citizens[NUM_CITIZENS]);
-void show_sick_people(Citizen citizens[NUM_CITIZENS]);
+
+int exist_medecin_on_case(City *shared_memory, Citizen citizen);
+int exist_fireman_on_case(City *shared_memory, Citizen citizen);
 
 int fireman_action(City *shared_memory, Citizen *fireman);
 int doctor_action(City *shared_memory, Citizen *doctor);
+int journalist_action(City *shared_memory, Citizen journalist);
+
+void updateHistory(City *shared_memory, FILE *file);
